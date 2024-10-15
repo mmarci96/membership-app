@@ -1,4 +1,4 @@
-package com.codecool.sv_server.entitiy;
+package com.codecool.sv_server.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
@@ -33,5 +33,32 @@ public class User {
     @PreUpdate
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
+    }
+
+    public void setEmail(String email) {
+        this.email = email;
+    }
+    public void setPassword(String encode) {
+        this.password = encode;
+    }
+
+    public Long getId() {
+        return id;
+    }
+
+    public String getEmail() {
+        return email;
+    }
+
+    public String getPassword() {
+        return password;
+    }
+
+    public LocalDateTime getCreatedAt() {
+        return createdAt;
+    }
+
+    public LocalDateTime getUpdatedAt() {
+        return updatedAt;
     }
 }
