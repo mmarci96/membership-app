@@ -12,13 +12,15 @@ services:
       SPRING_JPA_HIBERNATE_DDL_AUTO: update
     depends_on:
       - db
+    user: "1000:1000"  # Replace with your UID:GID
 
   frontend:
-     build:
-       context: ./client
-       dockerfile: Dockerfile
-     ports:
-       - "5173:5173"
+    build:
+      context: ./client
+      dockerfile: Dockerfile
+    ports:
+      - "5173:5173"
+    user: "1000:1000"  # Replace with your UID:GID
 
   db:
     image: postgres:15
