@@ -1,6 +1,7 @@
 package com.codecool.sv_server.service;
 
 import com.codecool.sv_server.dto.SignupRequestDto;
+import com.codecool.sv_server.dto.SignupResponseDto;
 import com.codecool.sv_server.entity.User;
 import com.codecool.sv_server.repository.UserRepository;
 import com.codecool.sv_server.utils.SignupRequestValidator;
@@ -28,11 +29,12 @@ public class UserService {
     }
 
     @Transactional
-    public long signup(SignupRequestDto signupRequestDto) {
+    public SignupResponseDto signup(SignupRequestDto signupRequestDto) {
         SignupRequestValidator.validate(signupRequestDto);
         // Check if the email already exists
         if (userRepository.findByEmail(signupRequestDto.email()) != null) {
-            throw new IllegalArgumentException("Email already exists");
+            // throw new IllegalArgumentException("Email already exists");
+            return null;
         }
         // Create new user
         var user = new User();
@@ -44,7 +46,7 @@ public class UserService {
         userRepository.save(user);
         emailService.sendActivationTokenEmail(user.getActivationToken(),
                                               user.getEmail(), user.getId());
-        return user.getId();
+        return new SignupResponseDto(user.getEmail(), user.getId());
     }
 
     public boolean activateUserAccount(Long userId, String activationToken) {
