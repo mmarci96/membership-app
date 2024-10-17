@@ -9,12 +9,12 @@ import org.springframework.web.bind.annotation.*;
 
 @RestController
 @RequestMapping("/api/auth")
-public class UserController {
+public class AuthController {
 
     private final UserService userService;
 
     @Autowired
-    public UserController(UserService userService) {
+    public AuthController(UserService userService) {
         this.userService = userService;
     }
 
@@ -24,5 +24,15 @@ public class UserController {
         System.out.println(signupRequestDto.email() + " " + signupRequestDto.password());
         long id = userService.signup(signupRequestDto);
         return ResponseEntity.ok(new SignupResponseDto(signupRequestDto.email(), id));
+    }
+    @GetMapping("/activate")
+    public ResponseEntity<String> activateAccount(@RequestParam("token") String token,
+                                                  @RequestParam("userId") Long userId) {
+        boolean isActivated = userService.activateUserAccount(userId, token);
+        if (isActivated) {
+            return ResponseEntity.ok("Account activated successfully!");
+        } else {
+            return ResponseEntity.badRequest().body("Activation link is invalid or expired.");
+        }
     }
 }
