@@ -1,12 +1,17 @@
-package com.codecool.sv_server.entitiy;
+package com.codecool.sv_server.entity;
 
 import jakarta.persistence.*;
 import java.time.LocalDateTime;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 @Entity
 @Table(name = "users")
+@Getter
+@Setter
+@NoArgsConstructor
 public class User {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
@@ -17,13 +22,18 @@ public class User {
     @Column(nullable = false, length = 60)
     private String password;
 
+    private boolean enabled;
+    private String activationToken;
+    private LocalDateTime activationExpirationTime;
+
     @Column(name = "created_at", updatable = false)
     private LocalDateTime createdAt;
 
     @Column(name = "updated_at")
     private LocalDateTime updatedAt;
 
-    // Getters and Setters
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private UserDetails userDetails;
 
     @PrePersist
     protected void onCreate() {
