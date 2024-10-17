@@ -21,9 +21,11 @@ public class AuthController {
     @PostMapping("/signup")
     public ResponseEntity<SignupResponseDto> signup(
             @RequestBody SignupRequestDto signupRequestDto) {
-        System.out.println(signupRequestDto.email() + " " + signupRequestDto.password());
-        long id = userService.signup(signupRequestDto);
-        return ResponseEntity.ok(new SignupResponseDto(signupRequestDto.email(), id));
+        var res = userService.signup(signupRequestDto);
+        if (res == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(res);
     }
     @GetMapping("/activate")
     public ResponseEntity<String> activateAccount(@RequestParam("token") String token,
