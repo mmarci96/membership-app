@@ -41,12 +41,9 @@ public class UserService {
         user.setEnabled(false);
         user.setActivationToken(UUID.randomUUID().toString());
         user.setActivationExpirationTime(LocalDateTime.now().plusMinutes(90));
-        emailService.sendActivationTokenEmail(user.getActivationToken(),
-                                              user.getEmail(), user.getId().intValue());
         userRepository.save(user);
-
-        // Create the activation link
-
+        emailService.sendActivationTokenEmail(user.getActivationToken(),
+                                              user.getEmail(), user.getId());
         return user.getId();
     }
 

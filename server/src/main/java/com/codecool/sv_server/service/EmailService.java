@@ -26,7 +26,7 @@ public class EmailService {
         message.setFrom(email);
         mailSender.send(message);
     }
-    public void sendActivationTokenEmail(String token, String email, int id) {
+    public void sendActivationTokenEmail(String token, String email, long id) {
 
         String activationLink = "http://localhost:8080/api/auth/activate?token=" +
                                 token + "&userId=" + id;
