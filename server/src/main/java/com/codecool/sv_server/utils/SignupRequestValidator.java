@@ -23,8 +23,6 @@ public class SignupRequestValidator {
             throw new IllegalArgumentException("Password must be at least 6 characters");
         }
 
-        // You can add additional password requirements, such as requiring at least one number, one uppercase letter, etc.
-        // Example: check for at least one digit and one uppercase letter
         if (!password.matches(".*[0-9].*")) {
             throw new IllegalArgumentException("Password must contain at least one digit");
         }
