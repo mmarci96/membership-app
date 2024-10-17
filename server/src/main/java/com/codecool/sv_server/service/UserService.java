@@ -3,32 +3,33 @@ package com.codecool.sv_server.service;
 import com.codecool.sv_server.dto.SignupRequestDto;
 import com.codecool.sv_server.entity.User;
 import com.codecool.sv_server.repository.UserRepository;
+import com.codecool.sv_server.utils.SignupRequestValidator;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.time.LocalDateTime;
+import java.util.UUID;
 
 @Service
 public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final EmailService emailService;
 
     @Autowired
-    public UserService(UserRepository userRepository, PasswordEncoder passwordEncoder) {
+    public UserService(UserRepository userRepository,
+                       PasswordEncoder passwordEncoder, EmailService emailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
+        this.emailService = emailService;
     }
 
     @Transactional
-    public int signup(SignupRequestDto signupRequestDto) {
-        // Validate input
-        if (signupRequestDto.email() == null || signupRequestDto.email().isBlank()) {
-            throw new IllegalArgumentException("Email must not be empty");
-        }
-        if (signupRequestDto.password() == null || signupRequestDto.password().length() < 6) {
-            throw new IllegalArgumentException("Password must be at least 6 characters");
-        }
+    public long signup(SignupRequestDto signupRequestDto) {
+        SignupRequestValidator.validate(signupRequestDto);
         // Check if the email already exists
         if (userRepository.findByEmail(signupRequestDto.email()) != null) {
             throw new IllegalArgumentException("Email already exists");
@@ -37,7 +38,30 @@ public class UserService {
         var user = new User();
         user.setEmail(signupRequestDto.email());
         user.setPassword(passwordEncoder.encode(signupRequestDto.password()));
+        user.setEnabled(false);
+        user.setActivationToken(UUID.randomUUID().toString());
+        user.setActivationExpirationTime(LocalDateTime.now().plusMinutes(90));
+        emailService.sendActivationTokenEmail(user.getActivationToken(),
+                                              user.getEmail(), user.getId().intValue());
         userRepository.save(user);
+
+        // Create the activation link
+
         return user.getId();
     }
-}
+
+    public boolean activateUserAccount(Long userId, String activationToken) {
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null || !user.getActivationToken().equals(activationToken) ||
+            user.getActivationExpirationTime().isBefore(LocalDateTime.now())) {
+            return false;
+        }
+
+        user.setEnabled(true);
+        user.setActivationToken(null);  // Clear the activationToken after successful activation
+        user.setActivationExpirationTime(null);  // Clear the expiration time
+        userRepository.save(user);
+
+        return true;
+    }
+ }
