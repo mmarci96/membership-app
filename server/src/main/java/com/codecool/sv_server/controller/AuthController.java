@@ -22,7 +22,7 @@ public class UserController {
     public ResponseEntity<SignupResponseDto> signup(
             @RequestBody SignupRequestDto signupRequestDto) {
         System.out.println(signupRequestDto.email() + " " + signupRequestDto.password());
-        int id = userService.signup(signupRequestDto);
+        long id = userService.signup(signupRequestDto);
         return ResponseEntity.ok(new SignupResponseDto(signupRequestDto.email(), id));
     }
 }
