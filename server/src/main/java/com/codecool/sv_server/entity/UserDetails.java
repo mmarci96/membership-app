@@ -11,19 +11,18 @@ import lombok.Setter;
 @NoArgsConstructor
 public class UserDetails {
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
-    private Integer id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long id;
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    @Column(nullable = true)
-    private String address;
-
-    @Column(nullable = true, unique = true)
+    private String firstName;
+    private String lastName;
     private String phoneNumber;
-
-    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
-    private UserDetails userDetails;
+    private String address;
+    private String city;
+    private String country;
+    private String zipCode;
 }
