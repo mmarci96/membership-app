@@ -1,29 +1,50 @@
 package com.codecool.sv_server.controller;
 
+import com.codecool.sv_server.dto.LoginRequestDto;
+import com.codecool.sv_server.dto.LoginResponseDto;
 import com.codecool.sv_server.dto.SignupResponseDto;
 import com.codecool.sv_server.dto.SignupRequestDto;
-import com.codecool.sv_server.service.UserService;
+import com.codecool.sv_server.service.AuthService;
+import com.codecool.sv_server.service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
-    private final UserService userService;
+    private final AuthService userService;
+    private final TokenService tokenService;
 
     @Autowired
-    public AuthController(UserService userService) {
+    public AuthController(AuthService userService, TokenService tokenService) {
         this.userService = userService;
+        this.tokenService = tokenService;
+    }
+
+    @PostMapping("/login")
+    public ResponseEntity<LoginResponseDto> loginReqController(
+            @RequestBody LoginRequestDto loginRequestDto) {
+
+        if (!userService.validateLogin(loginRequestDto)) {
+            return ResponseEntity.status(401).build();
+        }
+
+        String token = tokenService.generateToken(loginRequestDto.email());
+
+        return ResponseEntity.ok(new LoginResponseDto(token));
     }
 
     @PostMapping("/signup")
     public ResponseEntity<SignupResponseDto> signup(
             @RequestBody SignupRequestDto signupRequestDto) {
-        System.out.println(signupRequestDto.email() + " " + signupRequestDto.password());
-        long id = userService.signup(signupRequestDto);
-        return ResponseEntity.ok(new SignupResponseDto(signupRequestDto.email(), id));
+        var res = userService.registerUser(signupRequestDto);
+        if (res == null) {
+            return ResponseEntity.badRequest().build();
+        }
+        return ResponseEntity.ok(res);
     }
     @GetMapping("/activate")
     public ResponseEntity<String> activateAccount(@RequestParam("token") String token,
