@@ -5,34 +5,42 @@ import com.codecool.sv_server.dto.LoginResponseDto;
 import com.codecool.sv_server.dto.SignupResponseDto;
 import com.codecool.sv_server.dto.SignupRequestDto;
 import com.codecool.sv_server.service.AuthService;
+import com.codecool.sv_server.service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
 
     private final AuthService userService;
+    private final TokenService tokenService;
 
     @Autowired
-    public AuthController(AuthService userService) {
+    public AuthController(AuthService userService, TokenService tokenService) {
         this.userService = userService;
+        this.tokenService = tokenService;
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> login(@RequestBody LoginRequestDto loginRequestDto) {
-        var loginResponseDto = userService.authenticateUser(loginRequestDto);
-        if (loginResponseDto == null) {
-            return ResponseEntity.badRequest().build();
+    public ResponseEntity<LoginResponseDto> loginReqController(
+            @RequestBody LoginRequestDto loginRequestDto) {
+
+        if (!userService.validateLogin(loginRequestDto)) {
+            return ResponseEntity.status(401).build();
         }
-        return ResponseEntity.ok(new LoginResponseDto(loginResponseDto));
+
+        String token = tokenService.generateToken(loginRequestDto.email());
+
+        return ResponseEntity.ok(new LoginResponseDto(token));
     }
 
     @PostMapping("/signup")
     public ResponseEntity<SignupResponseDto> signup(
             @RequestBody SignupRequestDto signupRequestDto) {
-        var res = userService.createUser(signupRequestDto);
+        var res = userService.registerUser(signupRequestDto);
         if (res == null) {
             return ResponseEntity.badRequest().build();
         }

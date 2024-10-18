@@ -19,30 +19,28 @@ public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
-    private final JwtService jwtService;
 
     @Autowired
     public AuthService(UserRepository userRepository,
                        PasswordEncoder passwordEncoder,
-                       EmailService emailService,
-                       JwtService jwtService) {
+                       EmailService emailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.emailService = emailService;
-        this.jwtService = jwtService;
     }
 
     @Transactional
-    public String authenticateUser(LoginRequestDto loginRequestDto) {
-        var u = userRepository.findByEmail(loginRequestDto.email());
-        if(passwordEncoder.matches(loginRequestDto.password(), u.getPassword())) {
-            return jwtService.generateToken(loginRequestDto.email());
+    public boolean validateLogin(LoginRequestDto loginRequestDto) {
+        var u = (userRepository.findByEmail(loginRequestDto.email()));
+        if(u == null) {
+            return false;
         }
-        return null;
+        return passwordEncoder.matches(loginRequestDto.password(),
+                                       u.getPassword());
     }
 
     @Transactional
-    public SignupResponseDto createUser(SignupRequestDto signupRequestDto) {
+    public SignupResponseDto registerUser(SignupRequestDto signupRequestDto) {
         SignupRequestValidator.validate(signupRequestDto);
         // Check if the email already exists
         if (userRepository.findByEmail(signupRequestDto.email()) != null) {
