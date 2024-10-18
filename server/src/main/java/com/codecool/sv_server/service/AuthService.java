@@ -1,6 +1,8 @@
 package com.codecool.sv_server.service;
 
+import com.codecool.sv_server.dto.LoginRequestDto;
 import com.codecool.sv_server.dto.SignupRequestDto;
+import com.codecool.sv_server.dto.SignupResponseDto;
 import com.codecool.sv_server.entity.User;
 import com.codecool.sv_server.repository.UserRepository;
 import com.codecool.sv_server.utils.SignupRequestValidator;
@@ -13,26 +15,37 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
-public class UserService {
-
+public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
 
     @Autowired
-    public UserService(UserRepository userRepository,
-                       PasswordEncoder passwordEncoder, EmailService emailService) {
+    public AuthService(UserRepository userRepository,
+                       PasswordEncoder passwordEncoder,
+                       EmailService emailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.emailService = emailService;
     }
 
     @Transactional
-    public long signup(SignupRequestDto signupRequestDto) {
+    public boolean validateLogin(LoginRequestDto loginRequestDto) {
+        var u = (userRepository.findByEmail(loginRequestDto.email()));
+        if(u == null) {
+            return false;
+        }
+        return passwordEncoder.matches(loginRequestDto.password(),
+                                       u.getPassword());
+    }
+
+    @Transactional
+    public SignupResponseDto registerUser(SignupRequestDto signupRequestDto) {
         SignupRequestValidator.validate(signupRequestDto);
         // Check if the email already exists
         if (userRepository.findByEmail(signupRequestDto.email()) != null) {
-            throw new IllegalArgumentException("Email already exists");
+            // throw new IllegalArgumentException("Email already exists");
+            return null;
         }
         // Create new user
         var user = new User();
@@ -44,9 +57,10 @@ public class UserService {
         userRepository.save(user);
         emailService.sendActivationTokenEmail(user.getActivationToken(),
                                               user.getEmail(), user.getId());
-        return user.getId();
+        return new SignupResponseDto(user.getEmail(), user.getId());
     }
 
+    @Transactional
     public boolean activateUserAccount(Long userId, String activationToken) {
         User user = userRepository.findById(userId).orElse(null);
         if (user == null || !user.getActivationToken().equals(activationToken) ||
