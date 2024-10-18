@@ -1,5 +1,6 @@
 package com.codecool.sv_server.service;
 
+import com.codecool.sv_server.dto.LoginRequestDto;
 import com.codecool.sv_server.dto.SignupRequestDto;
 import com.codecool.sv_server.dto.SignupResponseDto;
 import com.codecool.sv_server.entity.User;
@@ -14,22 +15,34 @@ import java.time.LocalDateTime;
 import java.util.UUID;
 
 @Service
-public class UserService {
-
+public class AuthService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
     private final EmailService emailService;
+    private final JwtService jwtService;
 
     @Autowired
-    public UserService(UserRepository userRepository,
-                       PasswordEncoder passwordEncoder, EmailService emailService) {
+    public AuthService(UserRepository userRepository,
+                       PasswordEncoder passwordEncoder,
+                       EmailService emailService,
+                       JwtService jwtService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.emailService = emailService;
+        this.jwtService = jwtService;
     }
 
     @Transactional
-    public SignupResponseDto signup(SignupRequestDto signupRequestDto) {
+    public String authenticateUser(LoginRequestDto loginRequestDto) {
+        var u = userRepository.findByEmail(loginRequestDto.email());
+        if(passwordEncoder.matches(loginRequestDto.password(), u.getPassword())) {
+            return jwtService.generateToken(loginRequestDto.email());
+        }
+        return null;
+    }
+
+    @Transactional
+    public SignupResponseDto createUser(SignupRequestDto signupRequestDto) {
         SignupRequestValidator.validate(signupRequestDto);
         // Check if the email already exists
         if (userRepository.findByEmail(signupRequestDto.email()) != null) {
@@ -49,6 +62,7 @@ public class UserService {
         return new SignupResponseDto(user.getEmail(), user.getId());
     }
 
+    @Transactional
     public boolean activateUserAccount(Long userId, String activationToken) {
         User user = userRepository.findById(userId).orElse(null);
         if (user == null || !user.getActivationToken().equals(activationToken) ||

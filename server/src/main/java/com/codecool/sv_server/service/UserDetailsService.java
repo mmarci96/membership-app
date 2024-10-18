@@ -27,6 +27,13 @@ public class UserDetailsService {
                 u.getAddress(), u.getCity(), u.getCountry(), userId
         );
     }
+    public UserDetailsDto getUserDetails(String email) {
+        var u = userRepository.findByEmail(email);
+        if (u == null) {
+            return null;
+        }
+        return getUserDetails(u.getId());
+    }
     public UserDetailsDto setupUserDetails(UserDetailsDto userDetailsDto) {
         var u = userRepository.findById(userDetailsDto.id());
         if (u == null) {
