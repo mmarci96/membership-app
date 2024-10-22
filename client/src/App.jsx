@@ -2,7 +2,8 @@ function App() {
 
     return (
         <div>
-            client
+            client says hello world!
+            user says hello world!
         </div>
     )
 }
