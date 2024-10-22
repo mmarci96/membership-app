@@ -21,6 +21,7 @@ public class BlogPostController {
 
     @GetMapping("/posts")
     public List<BlogPostDto> getPosts() {
+        System.out.println("posts service");
         return blogPostService.getAllBlogPosts().toList();
     }
 

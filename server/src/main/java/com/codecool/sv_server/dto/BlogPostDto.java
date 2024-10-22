@@ -1,4 +1,7 @@
 package com.codecool.sv_server.dto;
 
-public record BlogPostDto(long id, String title, String content) {
+import java.time.LocalDateTime;
+
+public record BlogPostDto(long id, String title, String content,
+                          LocalDateTime createdAt) {
 }
