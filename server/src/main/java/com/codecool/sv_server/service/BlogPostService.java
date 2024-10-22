@@ -23,7 +23,8 @@ public class BlogPostService {
                    .map(blogPost -> new BlogPostDto(
                            blogPost.getId(),
                            blogPost.getTitle(),
-                           blogPost.getContent()
+                           blogPost.getContent(),
+                           blogPost.getCreatedAt()
                    ));
     }
     public BlogPostDto getBlogPostById(Long id) {
@@ -32,7 +33,8 @@ public class BlogPostService {
                 new BlogPostDto(
                         post.getId(),
                         post.getTitle(),
-                        post.getContent()))
+                        post.getContent(),
+                        post.getCreatedAt()))
                 .orElse(null);
     }
 }
