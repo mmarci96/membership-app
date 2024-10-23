@@ -1,78 +1,62 @@
-import {useState} from "react";
-import FormInput from "./FormInput.jsx";
+/** @format */
 
-const LoginForm = () => {
-    const [formData, setFormData] = useState({
-        email: "",
-        password: "",
-        remember_me: false,
-    })
-    const [loading, setLoading] = useState(false);
-    const [responseData, setResponseData] = useState(null);
+import useForm from '../../hooks/useForm.js';
+import FormInput from './FormInput';
 
-    const handleChange = e => {
-        const { name, type, value, checked } = e.target;
+const LoginForm = ({ onLoginSuccess }) => {
+	const { formData, handleChange, handleSubmit, loading, error } = useForm(
+		{
+			email: '',
+			password: '',
+			remember_me: false,
+		},
+		'/api/auth/login'
+	);
 
-        setFormData(prev => ({
-            ...prev,
-            [name]: type === "checkbox" ? checked : value,
-        }));
-    };
+	const handleLogin = async e => {
+		const data = await handleSubmit(e);
+		if (data) {
+			localStorage.setItem('userId', data?.userId);
+			localStorage.setItem('token', data?.token);
+			onLoginSuccess();
+		}
+	};
 
-    const handleSubmit = async (e) => {
-        e.preventDefault();
-        setLoading(true);
-        const requestBody = {
-            email: formData.email,
-            password: formData.password,
-        }
-        const res = await fetch("/api/auth/login", {
-            method: "POST",
-            body: JSON.stringify(requestBody),
-            headers: {
-                "Content-Type": "application/json",
-            }
-        })
-        if (!res.ok) {
-            console.error("Failed to login ");
-        }
-        const data = await res.json();
-        console.log(data);
-        setResponseData(data);
-        setLoading(false);
-    }
-
-    return (
-        <div>
-            Login form
-        <form onSubmit={handleSubmit}>
-            <FormInput
-                label={"Email address"}
-                name="email"
-                value={formData.email}
-                onChange={handleChange}
-                type="email"
-            />
-            <FormInput
-                label={"Password"}
-                name="password"
-                value={formData.password}
-                onChange={handleChange}
-                type="password"
-            />
-            <FormInput
-                label={"Stay signed in"}
-                name="remember_me"
-                value={formData.remember_me}
-                type="checkbox"
-                onChange={handleChange}
-            />
-            <button type={"submit"} onClick={handleSubmit}>
-                Log in
-            </button>
-        </form>
-        </div>
-    )
-}
+	return (
+		<div>
+			<h2>Login Form</h2>
+			{error && <p className='error-message'>{error}</p>}
+			<form onSubmit={handleLogin}>
+				<FormInput
+					label={'Email address'}
+					name='email'
+					value={formData.email}
+					onChange={handleChange}
+					type='email'
+				/>
+				<FormInput
+					label={'Password'}
+					name='password'
+					value={formData.password}
+					onChange={handleChange}
+					type='password'
+				/>
+				<FormInput
+					label={'Stay signed in'}
+					name='remember_me'
+					type='checkbox'
+					checked={formData.remember_me}
+					onChange={handleChange}
+				/>
+				<button
+					type='submit'
+					disabled={loading}
+				>
+					{loading ? 'Logging in...' : 'Log in'}
+				</button>
+			</form>
+		</div>
+	);
+};
 
 export default LoginForm;

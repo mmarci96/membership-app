@@ -35,7 +35,7 @@ public class UserDetailsService {
         return getUserDetails(u.getId());
     }
     public UserDetailsDto setupUserDetails(UserDetailsDto userDetailsDto) {
-        var u = userRepository.findById(userDetailsDto.id());
+        var u = userRepository.findById(userDetailsDto.userId());
         if (u == null) {
             return null;
         }

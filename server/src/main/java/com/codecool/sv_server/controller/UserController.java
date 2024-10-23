@@ -9,7 +9,7 @@ import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/api/user")
+@RequestMapping("/api/users")
 public class UserController {
     private final UserDetailsService userDetailsService;
     public UserController(UserDetailsService userDetailsService) {
