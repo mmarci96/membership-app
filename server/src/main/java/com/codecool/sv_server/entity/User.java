@@ -34,6 +34,9 @@ public class User {
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
     private UserDetails userDetails;
 
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL)
+    private Membership membership;
+
     @PrePersist
     protected void onCreate() {
         createdAt = LocalDateTime.now();
