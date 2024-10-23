@@ -14,7 +14,7 @@ const BlogPostList = () => {
             }
             const json = await response.json();
             console.log(json);
-            setPosts(json); // Set posts only on a successful response
+            return json;
         } catch (error) {
             setError(error.message); // Set the error message
         } finally {
@@ -23,7 +23,7 @@ const BlogPostList = () => {
     };
 
     useEffect(() => {
-        getPosts();
+        getPosts().then(data => setPosts(data));
     }, []);
 
     // Handle loading state
