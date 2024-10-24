@@ -22,24 +22,13 @@ public class MembershipService {
         this.userRepository = userRepository;
     }
 
-    public MembershipStatusDto startMembership(String email) {
-        User user = userRepository.findByEmail(email);
-        Membership membership = new Membership();
-        membership.setUser(user);
-        membership.setSubscriptionStatus(SubscriptionStatus.TRIAL);
-        membership.setEndDate(LocalDate.now().plusMonths(1));
-        membershipRepository.save(membership);
-        return new MembershipStatusDto(user.getId(),
-                                       membership.getSubscriptionStatus(),
-                                       membership.getEndDate());
-    }
-
     public MembershipStatusDto startMembership(long userId) {
         User u = userRepository.findById(userId);
         Membership membership = new Membership();
         membership.setUser(u);
         membership.setSubscriptionStatus(SubscriptionStatus.ACTIVE);
         membership.setEndDate(LocalDate.now().plusMonths(1));
+
         membershipRepository.save(membership);
         return new MembershipStatusDto(
                 userId,
@@ -49,15 +38,6 @@ public class MembershipService {
 
     }
 
-    public MembershipStatusDto getMembershipStatus(String email) {
-        User user = userRepository.findByEmail(email);
-        Membership membership = user.getMembership();
-        if (membership == null) {
-            return null;
-        }
-        return new MembershipStatusDto(user.getId(), membership.getSubscriptionStatus(),
-                                       membership.getEndDate());
-    }
     public MembershipStatusDto getMemberShipStatus(long userId){
         User user = userRepository.findById(userId);
         Membership membership = user.getMembership();

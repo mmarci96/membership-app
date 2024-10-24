@@ -4,8 +4,6 @@ import com.codecool.sv_server.dto.UserDetailsDto;
 
 import com.codecool.sv_server.service.UserDetailsService;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.oauth2.jwt.Jwt;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -15,10 +13,9 @@ public class UserController {
     public UserController(UserDetailsService userDetailsService) {
         this.userDetailsService = userDetailsService;
     }
-    @GetMapping("/account")
-    public ResponseEntity<UserDetailsDto> getUserDetails(@AuthenticationPrincipal Jwt jwt) {
-        String email = jwt.getSubject();
-        var res = userDetailsService.getUserDetails(email);
+    @GetMapping("/account/{id}")
+    public ResponseEntity<UserDetailsDto> getUserDetails(@PathVariable long id) {
+        var res = userDetailsService.getUserDetailsByUserId(id);
         if (res == null) return ResponseEntity.notFound().build();
         return ResponseEntity.ok(res);
     }

@@ -1,9 +1,10 @@
 import { useLocation } from 'react-router-dom';
-import {useEffect} from "react";
+import {useEffect, useState} from "react";
 import {useGlobalContext} from "../hooks/useGlobalContext.js";
 
 const PaymentComplete = () => {
     const { user } = useGlobalContext()
+    const [membership, setMembership] = useState(null)
     const location = useLocation();
     const queryParams = new URLSearchParams(location.search);
 
@@ -18,7 +19,7 @@ const PaymentComplete = () => {
         console.log(user)
         console.log(redirectStatus)
 
-        if (redirectStatus === 'succeeded', user.userId) {
+        if (redirectStatus === 'succeeded' && user.userId) {
             // Call API to update membership
             fetch('/api/membership', {
                 method: 'POST',
@@ -35,17 +36,19 @@ const PaymentComplete = () => {
                 .then(response => response.json())
                 .then(data => {
                     console.log('Membership updated:', data);
+                    setMembership(data)
                     // Optionally redirect to another page after success
                 })
                 .catch(error => {
                     console.error('Error updating membership:', error);
                 });
         }
-    }, [paymentIntent, redirectStatus, user]);
-    return(
+    }, [paymentIntent, redirectStatus, user.userId, user.token]);
+    return(membership ?
         <div>
-            Payment {status === 'ACTIVE' ? <>o</> : <>k</>}
-        </div>
+            Payment {membership.status === 'ACTIVE' ? <>ok</> : <>failed</>}
+        </div> :
+            <div>Loading ... </div>
     )
 }
 

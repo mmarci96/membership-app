@@ -5,12 +5,14 @@ import Account from './scenes/Account.jsx';
 import MembershipPage from "./scenes/MembershipPage.jsx";
 import PaymentPage from "./scenes/PaymentPage.jsx";
 import PaymentComplete from "./scenes/PaymentComplete.jsx";
+import Navbar from "./components/navbar/Navbar.jsx";
 
 
 const App = () => {
 
     return (
         <BrowserRouter>
+            <Navbar />
             <Routes>
                 <Route path="/"                 element={<Home            />} />
                 <Route path="/home"             element={<Home            />} />
