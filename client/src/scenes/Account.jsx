@@ -1,19 +1,37 @@
-import { useState } from 'react';
+import {useEffect, useState} from 'react';
 import UserDetailsForm from '../components/forms/UserDetailsForm';
 import LoginForm from '../components/forms/LoginForm';
 import SignupForm from '../components/forms/SignupForm';
+import {useGlobalContext} from "../hooks/useGlobalContext.js";
 
 const Account = () => {
-  const [isLogin, setIsLogin] = useState(true);
+	const { user } = useGlobalContext();
+	const [userDetails, setUserDetails] = useState(null)
+  	const [isLogin, setIsLogin] = useState(true);
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
 
-	const handleToggle = () => {
-		setIsLogin(!isLogin);
-	};
+	const handleToggle = () => setIsLogin(!isLogin)
+	const handleLoginSuccess = () => setIsLoggedIn(true)
+	const fetchUserDetails = async (token) => {
+		const res = await fetch('/api/users/account', {
+			method: 'GET',
+			headers: {
+				'Content-Type': 'application/json',
+				Authorization: `Bearer ${token}`,
+			}
+		})
+		return await res.json()
+	}
 
-	const handleLoginSuccess = () => {
-		setIsLoggedIn(true);
-	};
+	useEffect(() => {
+		if(user.userId){
+			setIsLoggedIn(true)
+		}
+		if(user.token){
+			fetchUserDetails(user.token)
+				.then(data => setUserDetails(data))
+		}
+	}, [user]);
 
 	return (
 		<div className='auth-container'>
@@ -32,7 +50,8 @@ const Account = () => {
 					</button>
 				</div>
 			) : (
-				<UserDetailsForm />
+
+				<UserDetailsForm userDetails={userDetails} />
 			)}
 		</div>
 	);

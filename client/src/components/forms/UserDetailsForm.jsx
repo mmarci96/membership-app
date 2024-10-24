@@ -4,9 +4,9 @@ import { useEffect, useState } from 'react';
 import useForm from '../../hooks/useForm.js';
 import FormInput from './FormInput.jsx';
 
-const UserDetailsForm = () => {
+const UserDetailsForm = ({userDetails}) => {
   const [authToken, setAuthToken] = useState(null);
-	const { formData, handleChange, handleSubmit, loading, error } = useForm(
+	const { formData, handleChange, handleSubmit, loading, error, setFormData } = useForm(
 		{
 			firstName: '',
 			lastName: '',
@@ -15,7 +15,7 @@ const UserDetailsForm = () => {
 			city: '',
 			country: '',
 			userId: null,
-		},
+		} ,
 		'/api/users/account',
     authToken
 	);
@@ -30,6 +30,11 @@ const UserDetailsForm = () => {
 			handleChange({ target: { name: 'userId', value: userId, type: 'text' } });
 		}
 	}, []);
+	useEffect(() => {
+		if(userDetails !== null){
+			setFormData(userDetails)
+		}
+	},[userDetails])
 
 	return (
 		<div>
