@@ -3,8 +3,6 @@ services:
     build:
       context: ./server
       dockerfile: Dockerfile
-    ports:
-      - "8080:8080"
     environment:
       SPRING_DATASOURCE_URL: jdbc:postgresql://db:${DB_PORT}/${DB_NAME}
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME}
@@ -16,17 +14,27 @@ services:
       MAIL_PASSWORD: ${MAIL_PASSWORD}
       PRIVATE_KEY: ${PRIVATE_KEY}
       PUBLIC_KEY: ${PUBLIC_KEY}
+      SECRET_STRIPE_KEY: ${SECRET_STRIPE_KEY}
     depends_on:
       - db
-    user: "1000:1000"  # Replace with your UID:GID
+    networks:
+      - app-network
 
   frontend:
     build:
       context: ./client
       dockerfile: Dockerfile
     ports:
-      - "5173:5173"
-    user: "1000:1000"  # Replace with your UID:GID
+      - "5173:80"  # Map Vite dev server (default is 5173) to port 80 in the container
+    networks:
+      - app-network
+    volumes:
+      - ./client:/app  # Optional: Use this if you want to mount the code for live updates in development
+    environment:
+      NODE_ENV: development  # Can be set to production if building in prod
+    depends_on:
+      - backend
+      - db
 
   db:
     image: postgres:15
@@ -34,5 +42,8 @@ services:
       POSTGRES_USER: ${DB_USERNAME}
       POSTGRES_PASSWORD: ${DB_PASSWORD}
       POSTGRES_DB: ${DB_NAME}
-    ports:
-      - "5432:5432"
+    networks:
+      - app-network
+networks:
+  app-network:
+    driver: bridge

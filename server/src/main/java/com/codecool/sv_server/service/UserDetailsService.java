@@ -17,8 +17,8 @@ public class UserDetailsService {
         this.userRepository = userRepository;
     }
 
-    public UserDetailsDto getUserDetails(long userId) {
-        var u = userDetailsRepository.findById(userId).orElse(null);
+    public UserDetailsDto getUserDetailsByUserId(long userId) {
+        var u = userDetailsRepository.findByUserId(userId);
         if (u == null) {
             return null;
         }
@@ -27,15 +27,9 @@ public class UserDetailsService {
                 u.getAddress(), u.getCity(), u.getCountry(), userId
         );
     }
-    public UserDetailsDto getUserDetails(String email) {
-        var u = userRepository.findByEmail(email);
-        if (u == null) {
-            return null;
-        }
-        return getUserDetails(u.getId());
-    }
+
     public UserDetailsDto setupUserDetails(UserDetailsDto userDetailsDto) {
-        var u = userRepository.findById(userDetailsDto.id());
+        var u = userRepository.findById(userDetailsDto.userId());
         if (u == null) {
             return null;
         }

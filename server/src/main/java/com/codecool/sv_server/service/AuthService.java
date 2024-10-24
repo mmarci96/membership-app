@@ -29,14 +29,12 @@ public class AuthService {
         this.emailService = emailService;
     }
 
-    @Transactional
-    public boolean validateLogin(LoginRequestDto loginRequestDto) {
+    public long validateLogin(LoginRequestDto loginRequestDto) {
         var u = (userRepository.findByEmail(loginRequestDto.email()));
-        if(u == null) {
-            return false;
+        if(u == null || !passwordEncoder.matches(loginRequestDto.password(), u.getPassword())) {
+            return -1;
         }
-        return passwordEncoder.matches(loginRequestDto.password(),
-                                       u.getPassword());
+        return u.getId();
     }
 
     @Transactional
