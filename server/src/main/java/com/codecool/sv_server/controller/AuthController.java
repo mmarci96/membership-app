@@ -28,13 +28,14 @@ public class AuthController {
     public ResponseEntity<LoginResponseDto> loginReqController(
             @RequestBody LoginRequestDto loginRequestDto) {
 
-        if (!userService.validateLogin(loginRequestDto)) {
+        long userId = userService.validateLogin(loginRequestDto);
+        if (userId <= 0) {
             return ResponseEntity.status(401).build();
         }
 
         String token = tokenService.generateToken(loginRequestDto.email());
 
-        return ResponseEntity.ok(new LoginResponseDto(token));
+        return ResponseEntity.ok(new LoginResponseDto(token, userId));
     }
 
     @PostMapping("/signup")

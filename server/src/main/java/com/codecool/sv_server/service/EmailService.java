@@ -28,7 +28,8 @@ public class EmailService {
     }
     public void sendActivationTokenEmail(String token, String email, long id) {
 
-        String activationLink = "http://localhost:8080/api/auth/activate?token=" +
+        String activationLink = "http://localhost:5173/api/auth/activate" +
+                "?token=" +
                                 token + "&userId=" + id;
 
         sendEmail(email, "Activate your account",
