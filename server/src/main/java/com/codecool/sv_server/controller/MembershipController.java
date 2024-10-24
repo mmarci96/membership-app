@@ -1,6 +1,7 @@
 package com.codecool.sv_server.controller;
 
 import com.codecool.sv_server.dto.MembershipPackageDTO;
+import com.codecool.sv_server.dto.MembershipPackageNameDto;
 import com.codecool.sv_server.dto.MembershipStatusDto;
 import com.codecool.sv_server.dto.SubscriptionReqDto;
 import com.codecool.sv_server.entity.Membership;
@@ -10,6 +11,8 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.List;
 
 @RestController
 @RequestMapping("/api/memberships")
@@ -39,11 +42,21 @@ public class MembershipController {
         return ResponseEntity.ok(membershipPackageDTO);
     }
 
-    @GetMapping
-    public ResponseEntity<MembershipStatusDto> getMembershipStatus(
-            @RequestBody SubscriptionReqDto subscriptionReqDto) {
-        long id = subscriptionReqDto.userId();
-        var status = membershipService.getMemberShipStatus(id);
+    @GetMapping("/packages")
+    public ResponseEntity<List<MembershipPackageNameDto>> getMembershipPackages() {
+        List<MembershipPackageNameDto> packageNameDtoList =
+                membershipPackageService.getAllPackages()
+                        .stream().map(membershipPackage ->
+                                new MembershipPackageNameDto(
+                                        membershipPackage.getId(),
+                                        membershipPackage.getName()))
+                        .toList();
+        return ResponseEntity.ok(packageNameDtoList);
+    }
+
+    @GetMapping("/{user_id}")
+    public ResponseEntity<MembershipStatusDto> getMembershipStatus(@PathVariable long user_id) {
+        var status = membershipService.getMemberShipStatus(user_id);
         if (status == null) {
             return ResponseEntity.notFound().build();
         }

@@ -21,7 +21,7 @@ public class TokenService {
     public String generateToken(String email) {
         Instant now = Instant.now();
         JwtClaimsSet claims = JwtClaimsSet.builder()
-                                          .issuer("self")
+                                          .issuer("http://localhost:5173")
                                           .issuedAt(now)
                                           .expiresAt(now.plus(1, ChronoUnit.HOURS))
                                           .subject(email)

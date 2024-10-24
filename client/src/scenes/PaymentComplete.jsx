@@ -1,4 +1,4 @@
-import { useLocation } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import {useEffect, useState} from "react";
 import {useGlobalContext} from "../hooks/useGlobalContext.js";
 
@@ -6,6 +6,7 @@ const PaymentComplete = () => {
     const { user } = useGlobalContext()
     const [membership, setMembership] = useState(null)
     const location = useLocation();
+    const navigate = useNavigate();
     const queryParams = new URLSearchParams(location.search);
 
     const paymentIntent = queryParams.get('payment_intent');
@@ -38,18 +39,21 @@ const PaymentComplete = () => {
                     console.log('Membership updated:', data);
                     setMembership(data)
                     // Optionally redirect to another page after success
+                    navigate('/membership');
                 })
                 .catch(error => {
                     console.error('Error updating membership:', error);
                 });
         }
     }, [paymentIntent, redirectStatus, user.userId, user.token]);
-    return(membership ?
-        <div>
-            Payment {membership.status === 'ACTIVE' ? <>ok</> : <>failed</>}
-        </div> :
-            <div>Loading ... </div>
-    )
+
+    return membership ? (
+			<div>
+				Payment {membership.status === 'ACTIVE' ? <>ok</> : <>failed</>}
+			</div>
+		) : (
+			<div>Loading...</div>
+		);
 }
 
 export default PaymentComplete
