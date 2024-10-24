@@ -1,0 +1,39 @@
+# Ignore compiled Java artifacts
+target
+bin
+
+# Ignore Maven/Gradle cache
+.mvn/
+.gradle/
+build/
+
+# Ignore test results
+test-output/
+surefire-reports/
+
+# Ignore local environment files
+.env
+*.env
+
+# Ignore IDE configuration files
+.vscode/
+.idea/
+*.iml
+
+# Ignore OS-specific files
+.DS_Store
+Thumbs.db
+
+# Ignore log files
+*.log
+
+# Ignore temporary files created by build tools
+*.bak
+*.swp
+*~
+
+# Ignore classpath and build information
+*.class
+*.jar
+*.war
+*.ear

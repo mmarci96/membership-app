@@ -50,5 +50,8 @@ public class MembershipService {
                 membership.getEndDate()
         );
     }
+    public Membership findActiveMembershipByEmail(String email) {
+        return membershipRepository.findActiveByUserEmail(email);
+    }
 
 }
