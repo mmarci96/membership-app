@@ -21,7 +21,7 @@ const PaymentComplete = () => {
 
         if (redirectStatus === 'succeeded' && user.userId) {
             // Call API to update membership
-            fetch('/api/membership', {
+            fetch('/api/memberships', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
