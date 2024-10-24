@@ -3,7 +3,6 @@ target
 bin
 
 # Ignore Maven/Gradle cache
-.mvn/
 .gradle/
 build/
 
@@ -11,9 +10,6 @@ build/
 test-output/
 surefire-reports/
 
-# Ignore local environment files
-.env
-*.env
 
 # Ignore IDE configuration files
 .vscode/
