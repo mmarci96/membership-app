@@ -43,7 +43,7 @@ const useForm = (initialValues, endpoint, auth = null) => {
 			const res = await handleFetch(auth);
 
 			if (!res.ok) {
-				throw new Error('Submission failed.');
+				setError('Submission failed.');
 			}
 
 			const data = await res.json();
