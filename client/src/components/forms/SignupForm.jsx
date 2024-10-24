@@ -14,11 +14,18 @@ const SignupForm = () => {
 		'/api/auth/signup'
 	);
 
+	const handleSignup = async e => {
+		const data = await handleSubmit(e);
+		if (data) {
+			window.location.reload();
+		}
+	};
+
 	return (
 		<div>
 			<h2>Signup Form</h2>
 			{error && <p className='error-message'>{error}</p>}
-			<form onSubmit={handleSubmit}>
+			<form onSubmit={handleSignup}>
 				<FormInput
 					label={'Email address'}
 					name='email'

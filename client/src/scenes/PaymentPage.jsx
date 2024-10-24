@@ -3,12 +3,12 @@ import { loadStripe } from '@stripe/stripe-js';
 import CheckoutForm from '../components/forms/CheckoutForm.jsx';
 import { useState, useEffect } from 'react';
 import {useGlobalContext} from "../hooks/useGlobalContext.js";
-const stripePromise = loadStripe('pk_test_51QD8akFDvrnvLO6Q70i4UqzN6zqQ3G9qCOQQGrzkEuFbiom9vsf6qVQ8cGC0f3m7hzqmVdhJkJ8hrqF7hjUqoHh600nkbdvpy6');
-
 
 const PaymentPage = () => {
+    const stripePublicKey = 'pk_test_51QD8akFDvrnvLO6Q70i4UqzN6zqQ3G9qCOQQGrzkEuFbiom9vsf6qVQ8cGC0f3m7hzqmVdhJkJ8hrqF7hjUqoHh600nkbdvpy6';
     const { user } = useGlobalContext()
     const [clientSecret, setClientSecret] = useState('');
+    const stripePromise = loadStripe(stripePublicKey);
 
     useEffect(() => {
         // Fetch clientSecret from your backend

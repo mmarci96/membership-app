@@ -7,13 +7,13 @@ import {useGlobalContext} from "../hooks/useGlobalContext.js";
 const Account = () => {
 	const { user } = useGlobalContext();
 	const [userDetails, setUserDetails] = useState(null)
-  	const [isLogin, setIsLogin] = useState(true);
+  const [isLogin, setIsLogin] = useState(true);
 	const [isLoggedIn, setIsLoggedIn] = useState(false);
 
 	const handleToggle = () => setIsLogin(!isLogin)
-	const handleLoginSuccess = () => setIsLoggedIn(true)
-	const fetchUserDetails = async (token) => {
-		const res = await fetch(`/api/users/account/${user.userId}`, {
+
+	const fetchUserDetails = async (token, userId) => {
+		const res = await fetch(`/api/users/account/${userId}`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
@@ -25,14 +25,25 @@ const Account = () => {
 
 
 	useEffect(() => {
-		if(user.userId){
-			setIsLoggedIn(true)
-		}
-		if(user.token){
-			fetchUserDetails(user.token)
-				.then(data => setUserDetails(data))
-		}
-	}, [user]);
+		const getUserDetails = async () => {
+			if (user.token && user.userId) {
+				setIsLoggedIn(true);
+				try {
+					const data = await fetchUserDetails(user.token, user.userId);
+					if (data) {
+						setUserDetails(data);
+					}
+				} catch (error) {
+					console.log('User has not filled out form', error);
+					// Optionally, handle different error statuses (e.g., show default values)
+					setUserDetails(null); // Assuming 'null' means no details set yet
+				}
+			}
+		};
+
+		getUserDetails();
+	}, [user.userId, user.token]);
+
 
 	return (
 		<div className='auth-container'>
@@ -40,9 +51,9 @@ const Account = () => {
 				<div>
 					<h2>{isLogin ? 'Login' : 'Sign Up'}</h2>
 					{isLogin ? (
-						<LoginForm onLoginSuccess={handleLoginSuccess} />
+						<LoginForm  />
 					) : (
-						<SignupForm onSignupSuccess={handleLoginSuccess} />
+						<SignupForm  />
 					)}
 					<button onClick={handleToggle}>
 						{isLogin
