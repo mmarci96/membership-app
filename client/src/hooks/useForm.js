@@ -64,6 +64,7 @@ const useForm = (initialValues, endpoint, auth = null) => {
 		handleSubmit,
 		loading,
 		error,
+		setFormData
 	};
 };
 
