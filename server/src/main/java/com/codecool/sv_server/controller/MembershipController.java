@@ -19,8 +19,8 @@ public class MembershipController {
     @GetMapping
     public ResponseEntity<MembershipStatusDto> getMembershipStatus(
             @RequestBody SubscriptionReqDto subscriptionReqDto) {
-        var status = membershipService
-                .getMembershipStatus(subscriptionReqDto.email());
+        long id = subscriptionReqDto.userId();
+        var status = membershipService.getMemberShipStatus(id);
         if (status == null) {
             return ResponseEntity.notFound().build();
         }
@@ -31,7 +31,7 @@ public class MembershipController {
             @RequestBody SubscriptionReqDto subscriptionReqDto) {
         if(subscriptionReqDto.paymentStatus()){
             var status =
-                    membershipService.startMembership(subscriptionReqDto.email());
+                    membershipService.startMembership(subscriptionReqDto.userId());
             return ResponseEntity.ok(status);
         }
         return ResponseEntity.status(404).build();

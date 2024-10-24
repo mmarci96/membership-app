@@ -15,14 +15,21 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 public class Membership {
     @Id
-    @GeneratedValue( strategy = GenerationType.IDENTITY)
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
     @OneToOne
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
 
-    private boolean active;
+    // Stripe-related fields
+    private String stripeCustomerId;
+    private String stripeSubscriptionId;
+    private String stripePaymentIntentId;
+    private String clientSecret;
+
+    // Subscription details
+    private SubscriptionStatus subscriptionStatus;
     private LocalDate startDate;
     private LocalDate endDate;
     private LocalDateTime updatedAt;

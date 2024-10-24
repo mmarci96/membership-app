@@ -2,6 +2,7 @@ package com.codecool.sv_server.service;
 
 import com.codecool.sv_server.dto.MembershipStatusDto;
 import com.codecool.sv_server.entity.Membership;
+import com.codecool.sv_server.entity.SubscriptionStatus;
 import com.codecool.sv_server.entity.User;
 import com.codecool.sv_server.repository.MembershipRepository;
 import com.codecool.sv_server.repository.UserRepository;
@@ -25,10 +26,27 @@ public class MembershipService {
         User user = userRepository.findByEmail(email);
         Membership membership = new Membership();
         membership.setUser(user);
-        membership.setActive(true);
+        membership.setSubscriptionStatus(SubscriptionStatus.TRIAL);
         membership.setEndDate(LocalDate.now().plusMonths(1));
         membershipRepository.save(membership);
-        return new MembershipStatusDto(email, membership.isActive(), membership.getEndDate());
+        return new MembershipStatusDto(user.getId(),
+                                       membership.getSubscriptionStatus(),
+                                       membership.getEndDate());
+    }
+
+    public MembershipStatusDto startMembership(long userId) {
+        User u = userRepository.findById(userId);
+        Membership membership = new Membership();
+        membership.setUser(u);
+        membership.setSubscriptionStatus(SubscriptionStatus.ACTIVE);
+        membership.setEndDate(LocalDate.now().plusMonths(1));
+        membershipRepository.save(membership);
+        return new MembershipStatusDto(
+                userId,
+                membership.getSubscriptionStatus(),
+                membership.getEndDate()
+        );
+
     }
 
     public MembershipStatusDto getMembershipStatus(String email) {
@@ -37,7 +55,20 @@ public class MembershipService {
         if (membership == null) {
             return null;
         }
-        return new MembershipStatusDto(email, membership.isActive(), membership.getEndDate());
+        return new MembershipStatusDto(user.getId(), membership.getSubscriptionStatus(),
+                                       membership.getEndDate());
+    }
+    public MembershipStatusDto getMemberShipStatus(long userId){
+        User user = userRepository.findById(userId);
+        Membership membership = user.getMembership();
+        if (membership == null) {
+            return null;
+        }
+        return new MembershipStatusDto(
+                userId,
+                membership.getSubscriptionStatus(),
+                membership.getEndDate()
+        );
     }
 
 }

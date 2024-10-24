@@ -42,6 +42,7 @@ public class SecurityConfiguration {
                 .authorizeHttpRequests(request->
                         request.requestMatchers("/api/auth/*").permitAll()
                                 .requestMatchers("/api/blog/*").permitAll()
+                               .requestMatchers("/api/stripe/*").permitAll()
                                 .anyRequest().authenticated()
                 )
                 .oauth2ResourceServer(oauth2 -> oauth2

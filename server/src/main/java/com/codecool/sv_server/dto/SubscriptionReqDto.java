@@ -1,4 +1,5 @@
 package com.codecool.sv_server.dto;
 
-public record SubscriptionReqDto(String email, boolean paymentStatus) {
+public record SubscriptionReqDto(long userId, boolean paymentStatus,
+                                 String paymentIntent) {
 }
