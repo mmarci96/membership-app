@@ -3,7 +3,7 @@
 import useForm from '../../hooks/useForm.js';
 import FormInput from './FormInput';
 
-const LoginForm = ({ onLoginSuccess }) => {
+const LoginForm = () => {
 	const { formData, handleChange, handleSubmit, loading, error } = useForm(
 		{
 			email: '',
@@ -18,7 +18,7 @@ const LoginForm = ({ onLoginSuccess }) => {
 		if (data) {
 			localStorage.setItem('userId', data?.userId);
 			localStorage.setItem('token', data?.token);
-			onLoginSuccess();
+			window.location.reload();
 		}
 	};
 

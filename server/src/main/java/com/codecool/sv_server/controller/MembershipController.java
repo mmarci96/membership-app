@@ -54,11 +54,9 @@ public class MembershipController {
         return ResponseEntity.ok(packageNameDtoList);
     }
 
-    @GetMapping
-    public ResponseEntity<MembershipStatusDto> getMembershipStatus(
-            @RequestBody SubscriptionReqDto subscriptionReqDto) {
-        long id = subscriptionReqDto.userId();
-        var status = membershipService.getMemberShipStatus(id);
+    @GetMapping("/{user_id}")
+    public ResponseEntity<MembershipStatusDto> getMembershipStatus(@PathVariable long user_id) {
+        var status = membershipService.getMemberShipStatus(user_id);
         if (status == null) {
             return ResponseEntity.notFound().build();
         }
