@@ -1,8 +1,6 @@
 import {useStripe, useElements, PaymentElement} from '@stripe/react-stripe-js';
-import {useGlobalContext} from "../../hooks/useGlobalContext.js";
 
 const CheckoutForm = () => {
-    const { user } = useGlobalContext();
     const stripe = useStripe();
     const elements = useElements();
 
@@ -33,24 +31,6 @@ const CheckoutForm = () => {
             // methods like iDEAL, your customer will be redirected to an intermediate
             // site first to authorize the payment, then redirected to the `return_url`.
             console.log(result)
-            fetch('/api/membership', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                    'Authenticate': `Bearer ${user.token}`
-                },
-                body: JSON.stringify({
-                    userId: user.userId,
-                    paymentStatus: true
-                }),
-            })
-                .then(response => response.json())
-                .then(data => {
-                    console.log('Membership updated:', data);
-                })
-                .catch(error => {
-                    console.error('Error updating membership:', error);
-                });
         }
     };
 

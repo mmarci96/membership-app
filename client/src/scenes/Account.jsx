@@ -13,15 +13,16 @@ const Account = () => {
 	const handleToggle = () => setIsLogin(!isLogin)
 	const handleLoginSuccess = () => setIsLoggedIn(true)
 	const fetchUserDetails = async (token) => {
-		const res = await fetch('/api/users/account', {
+		const res = await fetch(`/api/users/account/${user.userId}`, {
 			method: 'GET',
 			headers: {
 				'Content-Type': 'application/json',
 				Authorization: `Bearer ${token}`,
 			}
-		})
-		return await res.json()
+		});
+		return await res.json();
 	}
+
 
 	useEffect(() => {
 		if(user.userId){
