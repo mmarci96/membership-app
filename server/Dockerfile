@@ -1,22 +1,13 @@
-# Use the official OpenJDK image as a base image
-FROM openjdk:17-jdk-slim AS backend
-
-# Set the working directory in the container
-WORKDIR /app
-
-# Copy only the Maven wrapper and pom.xml first (to leverage caching)
-COPY ./mvnw ./
-COPY ./.mvn .mvn/
-COPY pom.xml ./
-
-# Download dependencies (cache this layer)
+FROM eclipse-temurin:21.0.2_13-jdk-jammy AS builder
+WORKDIR /opt/app
+COPY .mvn/ .mvn
+COPY mvnw pom.xml ./
 RUN ./mvnw dependency:go-offline
+COPY ./src ./src
+RUN ./mvnw clean install
 
-# Now copy the entire source code
-COPY src ./src
-
-# Build the application
-RUN ./mvnw clean package -DskipTests
-
-# Specify the command to run your application
-CMD ["java", "-jar", "target/server-0.0.1-SNAPSHOT.jar"]
+FROM eclipse-temurin:21.0.2_13-jre-jammy AS final
+WORKDIR /opt/app
+EXPOSE 8080
+COPY --from=builder /opt/app/target/*.jar /opt/app/*.jar
+ENTRYPOINT ["java", "-jar", "/opt/app/*.jar"]
