@@ -10,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
-
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -47,9 +46,10 @@ public class AuthController {
         }
         return ResponseEntity.ok(res);
     }
+
     @GetMapping("/activate")
     public ResponseEntity<String> activateAccount(@RequestParam("token") String token,
-                                                  @RequestParam("userId") Long userId) {
+            @RequestParam("userId") Long userId) {
         boolean isActivated = userService.activateUserAccount(userId, token);
         if (isActivated) {
             return ResponseEntity.ok("Account activated successfully!");

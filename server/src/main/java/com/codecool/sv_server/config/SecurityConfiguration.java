@@ -39,24 +39,23 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(request->
-                        request.requestMatchers("/api/auth/*").permitAll()
-                                .requestMatchers("/api/blog/*").permitAll()
-                                .requestMatchers("/api/stripe/*").permitAll()
-                                .anyRequest().authenticated()
-                )
+                .authorizeHttpRequests(request -> request.requestMatchers("/api/auth/*").permitAll()
+                        .requestMatchers("/api/blog/*").permitAll()
+                        .requestMatchers("/api/stripe/*").permitAll()
+                        .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(Customizer.withDefaults()))
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
-                )
+                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .httpBasic(Customizer.withDefaults())
                 .build();
     }
+
     @Bean
     JwtDecoder jwtDecoder() {
         return NimbusJwtDecoder.withPublicKey(rsaKeys.publicKey()).build();
     }
+
     @Bean
     JwtEncoder jwtEncoder() {
         JWK jwk = new RSAKey.Builder(rsaKeys.publicKey()).privateKey(rsaKeys.privateKey()).build();
