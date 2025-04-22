@@ -19,22 +19,21 @@ public class BlogPostService {
     }
 
     public Stream<BlogPostDto> getAllBlogPosts() {
-           return blogPostRepository.findAll().stream()
-                   .map(blogPost -> new BlogPostDto(
-                           blogPost.getId(),
-                           blogPost.getTitle(),
-                           blogPost.getContent(),
-                           blogPost.getCreatedAt()
-                   ));
+        return blogPostRepository.findAll().stream()
+                .map(blogPost -> new BlogPostDto(
+                        blogPost.getId(),
+                        blogPost.getTitle(),
+                        blogPost.getContent(),
+                        blogPost.getCreatedAt()));
     }
+
     public BlogPostDto getBlogPostById(Long id) {
         Optional<BlogPost> blogPost = blogPostRepository.findById(id);
-        return blogPost.map(post ->
-                new BlogPostDto(
-                        post.getId(),
-                        post.getTitle(),
-                        post.getContent(),
-                        post.getCreatedAt()))
+        return blogPost.map(post -> new BlogPostDto(
+                post.getId(),
+                post.getTitle(),
+                post.getContent(),
+                post.getCreatedAt()))
                 .orElse(null);
     }
 }
