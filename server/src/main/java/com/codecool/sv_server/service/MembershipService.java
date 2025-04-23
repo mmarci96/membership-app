@@ -1,6 +1,5 @@
 package com.codecool.sv_server.service;
 
-import com.codecool.sv_server.dto.MembershipPackageNameDto;
 import com.codecool.sv_server.dto.MembershipStatusDto;
 import com.codecool.sv_server.entity.Membership;
 import com.codecool.sv_server.entity.SubscriptionStatus;
@@ -11,7 +10,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
-import java.util.stream.Stream;
 
 @Service
 public class MembershipService {
@@ -35,12 +33,11 @@ public class MembershipService {
         return new MembershipStatusDto(
                 userId,
                 membership.getSubscriptionStatus(),
-                membership.getEndDate()
-        );
+                membership.getEndDate());
 
     }
 
-    public MembershipStatusDto getMemberShipStatus(long userId){
+    public MembershipStatusDto getMemberShipStatus(long userId) {
         User user = userRepository.findById(userId);
         Membership membership = user.getMembership();
         if (membership == null) {
@@ -49,9 +46,9 @@ public class MembershipService {
         return new MembershipStatusDto(
                 userId,
                 membership.getSubscriptionStatus(),
-                membership.getEndDate()
-        );
+                membership.getEndDate());
     }
+
     public Membership findActiveMembershipByEmail(String email) {
         return membershipRepository.findActiveByUserEmail(email);
     }
