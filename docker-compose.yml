@@ -12,8 +12,6 @@ services:
       MAIL_PORT: ${MAIL_PORT}
       MAIL_USERNAME: ${MAIL_USERNAME}
       MAIL_PASSWORD: ${MAIL_PASSWORD}
-      PRIVATE_KEY: ${PRIVATE_KEY}
-      PUBLIC_KEY: ${PUBLIC_KEY}
       SECRET_STRIPE_KEY: ${SECRET_STRIPE_KEY}
     depends_on:
       - db

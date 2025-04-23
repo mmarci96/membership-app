@@ -12,7 +12,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 public class ServerApplication {
 
     public static void main(String[] args) {
-        DotenvLoader.LoadEnv();
+        DotenvLoader.loadEnv();
         SpringApplication.run(ServerApplication.class, args);
     }
 
