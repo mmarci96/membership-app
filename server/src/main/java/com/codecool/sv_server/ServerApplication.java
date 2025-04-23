@@ -1,8 +1,7 @@
 package com.codecool.sv_server;
 
 import com.codecool.sv_server.config.RsaKeyProperties;
-
-import io.github.cdimascio.dotenv.Dotenv;
+import com.codecool.sv_server.utils.DotenvLoader;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
@@ -13,8 +12,7 @@ import org.springframework.boot.context.properties.EnableConfigurationProperties
 public class ServerApplication {
 
     public static void main(String[] args) {
-        Dotenv dotenv = Dotenv.load();
-        dotenv.entries().forEach(entry -> System.setProperty(entry.getKey(), entry.getValue()));
+        DotenvLoader.LoadEnv();
         SpringApplication.run(ServerApplication.class, args);
     }
 
