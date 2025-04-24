@@ -26,14 +26,14 @@ public class EmailService {
         message.setFrom(email);
         mailSender.send(message);
     }
+
     public void sendActivationTokenEmail(String token, String email, long id) {
 
         String activationLink = "http://localhost:5173/api/auth/activate" +
                 "?token=" +
-                                token + "&userId=" + id;
+                token + "&userId=" + id;
 
         sendEmail(email, "Activate your account",
-                  "Click here to activate your account: " + activationLink);
+                "Click here to activate your account: " + activationLink);
     }
 }
-
