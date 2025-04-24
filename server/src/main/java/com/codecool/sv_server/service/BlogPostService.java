@@ -1,6 +1,7 @@
 package com.codecool.sv_server.service;
 
 import com.codecool.sv_server.dto.BlogPostDto;
+import com.codecool.sv_server.dto.BlogPostUpdateDto;
 import com.codecool.sv_server.entity.BlogPost;
 import com.codecool.sv_server.repository.BlogPostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -35,5 +36,44 @@ public class BlogPostService {
                 post.getContent(),
                 post.getCreatedAt()))
                 .orElse(null);
+    }
+
+    public BlogPostDto createBlogPost(String title, String content) {
+        var blogPost = new BlogPost();
+        blogPost.setTitle(title);
+        blogPost.setContent(content);
+        blogPostRepository.save(blogPost);
+        return new BlogPostDto(blogPost.getId(),
+                blogPost.getTitle(),
+                blogPost.getContent(),
+                blogPost.getCreatedAt());
+    }
+
+    public BlogPostDto updateBlogPost(BlogPostUpdateDto updateData) {
+        var existing = blogPostRepository.findById(updateData.id());
+        if (existing.isPresent()) {
+            BlogPost post = existing.get();
+            post.setContent(updateData.content());
+            post.setTitle(updateData.title());
+            blogPostRepository.save(post);
+            return new BlogPostDto(post.getId(), post.getTitle(), post.getContent(), post.getCreatedAt());
+        }
+        return null;
+    }
+
+    public BlogPostDto deleteBlogPost(Long id) {
+        Optional<BlogPost> optionalPost = blogPostRepository.findById(id);
+
+        if (optionalPost.isPresent()) {
+            BlogPost post = optionalPost.get();
+            blogPostRepository.delete(post);
+            return new BlogPostDto(
+                    post.getId(),
+                    post.getTitle(),
+                    post.getContent(),
+                    post.getCreatedAt());
+        }
+
+        return null;
     }
 }
