@@ -41,12 +41,9 @@ public class AuthService {
     @Transactional
     public SignupResponseDto registerUser(SignupRequestDto signupRequestDto) {
         SignupRequestValidator.validate(signupRequestDto);
-        // Check if the email already exists
         if (userRepository.findByEmail(signupRequestDto.email()) != null) {
-            // throw new IllegalArgumentException("Email already exists");
             return null;
         }
-        // Create new user
         var user = new User();
         user.setEmail(signupRequestDto.email());
         user.setPassword(passwordEncoder.encode(signupRequestDto.password()));
@@ -70,8 +67,8 @@ public class AuthService {
         }
 
         user.setEnabled(true);
-        user.setActivationToken(null); // Clear the activationToken after successful activation
-        user.setActivationExpirationTime(null); // Clear the expiration time
+        user.setActivationToken(null);
+        user.setActivationExpirationTime(null);
         userRepository.save(user);
 
         return true;
