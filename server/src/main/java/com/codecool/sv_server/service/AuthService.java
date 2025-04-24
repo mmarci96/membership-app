@@ -22,8 +22,8 @@ public class AuthService {
 
     @Autowired
     public AuthService(UserRepository userRepository,
-                       PasswordEncoder passwordEncoder,
-                       EmailService emailService) {
+            PasswordEncoder passwordEncoder,
+            EmailService emailService) {
         this.userRepository = userRepository;
         this.passwordEncoder = passwordEncoder;
         this.emailService = emailService;
@@ -31,7 +31,7 @@ public class AuthService {
 
     public long validateLogin(LoginRequestDto loginRequestDto) {
         var u = (userRepository.findByEmail(loginRequestDto.email()));
-        if(u == null || !passwordEncoder.matches(loginRequestDto.password(), u.getPassword())) {
+        if (u == null || !passwordEncoder.matches(loginRequestDto.password(), u.getPassword())) {
             return -1;
         }
         return u.getId();
@@ -54,7 +54,7 @@ public class AuthService {
         user.setActivationExpirationTime(LocalDateTime.now().plusMinutes(90));
         userRepository.save(user);
         emailService.sendActivationTokenEmail(user.getActivationToken(),
-                                              user.getEmail(), user.getId());
+                user.getEmail(), user.getId());
         return new SignupResponseDto(user.getEmail(), user.getId());
     }
 
@@ -62,15 +62,15 @@ public class AuthService {
     public boolean activateUserAccount(Long userId, String activationToken) {
         User user = userRepository.findById(userId).orElse(null);
         if (user == null || !user.getActivationToken().equals(activationToken) ||
-            user.getActivationExpirationTime().isBefore(LocalDateTime.now())) {
+                user.getActivationExpirationTime().isBefore(LocalDateTime.now())) {
             return false;
         }
 
         user.setEnabled(true);
-        user.setActivationToken(null);  // Clear the activationToken after successful activation
-        user.setActivationExpirationTime(null);  // Clear the expiration time
+        user.setActivationToken(null); // Clear the activationToken after successful activation
+        user.setActivationExpirationTime(null); // Clear the expiration time
         userRepository.save(user);
 
         return true;
     }
- }
+}
