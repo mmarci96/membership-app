@@ -3,6 +3,7 @@ package com.codecool.sv_server.controller;
 import com.codecool.sv_server.dto.LoginRequestDto;
 import com.codecool.sv_server.dto.LoginResponseDto;
 import com.codecool.sv_server.dto.SignupResponseDto;
+import com.codecool.sv_server.dto.TokenCreateDto;
 import com.codecool.sv_server.dto.SignupRequestDto;
 import com.codecool.sv_server.service.AuthService;
 import com.codecool.sv_server.service.TokenService;
@@ -24,21 +25,19 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> loginReqController(
-            @RequestBody LoginRequestDto loginRequestDto) {
-
-        long userId = userService.validateLogin(loginRequestDto);
-        if (userId <= 0) {
-            return ResponseEntity.status(401).build();
+    public ResponseEntity<?> loginReqController(@RequestBody LoginRequestDto loginRequestDto) {
+        TokenCreateDto data = userService.validateLogin(loginRequestDto);
+        if (data == null) {
+            return ResponseEntity.status(401).body("Invalid email or password!");
         }
 
-        String token = tokenService.generateToken(loginRequestDto.email());
-
-        return ResponseEntity.ok(new LoginResponseDto(token, userId));
+        String token = tokenService.generateToken(loginRequestDto.email(),
+                data.role(), data.id());
+        return ResponseEntity.ok(new LoginResponseDto(token, data.id()));
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<SignupResponseDto> signup(
+    public ResponseEntity<?> signup(
             @RequestBody SignupRequestDto signupRequestDto) {
         var res = userService.registerUser(signupRequestDto);
         if (res == null) {

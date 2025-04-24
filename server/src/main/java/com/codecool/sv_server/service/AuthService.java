@@ -3,6 +3,7 @@ package com.codecool.sv_server.service;
 import com.codecool.sv_server.dto.LoginRequestDto;
 import com.codecool.sv_server.dto.SignupRequestDto;
 import com.codecool.sv_server.dto.SignupResponseDto;
+import com.codecool.sv_server.dto.TokenCreateDto;
 import com.codecool.sv_server.entity.Role;
 import com.codecool.sv_server.entity.User;
 import com.codecool.sv_server.repository.UserRepository;
@@ -30,12 +31,12 @@ public class AuthService {
         this.emailService = emailService;
     }
 
-    public long validateLogin(LoginRequestDto loginRequestDto) {
+    public TokenCreateDto validateLogin(LoginRequestDto loginRequestDto) {
         var u = (userRepository.findByEmail(loginRequestDto.email()));
         if (u == null || !passwordEncoder.matches(loginRequestDto.password(), u.getPassword())) {
-            return -1;
+            return null;
         }
-        return u.getId();
+        return new TokenCreateDto(u.getId(), u.getRole());
     }
 
     @Transactional
