@@ -73,4 +73,12 @@ public class AuthService {
 
         return true;
     }
+
+    public void setuserRole(Long id, Role role) {
+        var user = userRepository.findById(id).orElse(null);
+        if (user == null) {
+            return;
+        }
+        user.setRole(role);
+    }
 }
