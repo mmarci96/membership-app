@@ -22,6 +22,10 @@ public class User {
     @Column(nullable = false, length = 60)
     private String password;
 
+    @Enumerated(EnumType.STRING)
+    @Column(nullable = false)
+    private Role role;
+
     private boolean enabled;
     private String activationToken;
     private LocalDateTime activationExpirationTime;
