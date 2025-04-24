@@ -111,6 +111,24 @@
 				<groupId>org.springframework.boot</groupId>
 				<artifactId>spring-boot-maven-plugin</artifactId>
 			</plugin>
+        <!-- Lombok + annotation processing -->
+            <plugin>
+                <groupId>org.apache.maven.plugins</groupId>
+                <artifactId>maven-compiler-plugin</artifactId>
+                <version>3.13.0</version>
+                <configuration>
+                    <annotationProcessorPaths>
+                        <path>
+                            <groupId>org.projectlombok</groupId>
+                            <artifactId>lombok</artifactId>
+                            <version>1.18.34</version>
+                        </path>
+                    </annotationProcessorPaths>
+                <compilerArgs>
+                        <arg>-parameters</arg>
+                </compilerArgs>
+              </configuration>
+            </plugin>
             <!-- Surefire for unit tests -->
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
