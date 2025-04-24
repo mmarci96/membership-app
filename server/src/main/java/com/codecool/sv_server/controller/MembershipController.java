@@ -19,12 +19,14 @@ import java.util.List;
 public class MembershipController {
     private final MembershipService membershipService;
     private final MembershipPackageService membershipPackageService;
+
     @Autowired
     public MembershipController(MembershipService membershipService,
-                                MembershipPackageService membershipPackageService) {
+            MembershipPackageService membershipPackageService) {
         this.membershipService = membershipService;
         this.membershipPackageService = membershipPackageService;
     }
+
     @GetMapping("/packages/{membershipPackageId}")
     public ResponseEntity<MembershipPackageDTO> getMembershipPackageContent(
             @PathVariable Long membershipPackageId,
@@ -34,7 +36,7 @@ public class MembershipController {
         Membership activeMembership = membershipService.findActiveMembershipByEmail(userEmail);
 
         if (activeMembership == null) {
-            return ResponseEntity.status(403).body(null);  // Forbidden, user does not have active membership
+            return ResponseEntity.status(403).body(null); // Forbidden, user does not have active membership
         }
 
         // Fetch the requested membership package
@@ -44,13 +46,11 @@ public class MembershipController {
 
     @GetMapping("/packages")
     public ResponseEntity<List<MembershipPackageNameDto>> getMembershipPackages() {
-        List<MembershipPackageNameDto> packageNameDtoList =
-                membershipPackageService.getAllPackages()
-                        .stream().map(membershipPackage ->
-                                new MembershipPackageNameDto(
-                                        membershipPackage.getId(),
-                                        membershipPackage.getName()))
-                        .toList();
+        List<MembershipPackageNameDto> packageNameDtoList = membershipPackageService.getAllPackages()
+                .stream().map(membershipPackage -> new MembershipPackageNameDto(
+                        membershipPackage.getId(),
+                        membershipPackage.getName()))
+                .toList();
         return ResponseEntity.ok(packageNameDtoList);
     }
 
@@ -62,12 +62,12 @@ public class MembershipController {
         }
         return ResponseEntity.ok(status);
     }
+
     @PostMapping
     public ResponseEntity<MembershipStatusDto> createMembershipStatus(
             @RequestBody SubscriptionReqDto subscriptionReqDto) {
-        if(subscriptionReqDto.paymentStatus()){
-            var status =
-                    membershipService.startMembership(subscriptionReqDto.userId());
+        if (subscriptionReqDto.paymentStatus()) {
+            var status = membershipService.startMembership(subscriptionReqDto.userId());
             return ResponseEntity.ok(status);
         }
         return ResponseEntity.status(404).build();
