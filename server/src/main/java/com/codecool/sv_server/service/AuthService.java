@@ -3,6 +3,7 @@ package com.codecool.sv_server.service;
 import com.codecool.sv_server.dto.LoginRequestDto;
 import com.codecool.sv_server.dto.SignupRequestDto;
 import com.codecool.sv_server.dto.SignupResponseDto;
+import com.codecool.sv_server.entity.Role;
 import com.codecool.sv_server.entity.User;
 import com.codecool.sv_server.repository.UserRepository;
 import com.codecool.sv_server.utils.SignupRequestValidator;
@@ -52,6 +53,8 @@ public class AuthService {
         user.setEnabled(false);
         user.setActivationToken(UUID.randomUUID().toString());
         user.setActivationExpirationTime(LocalDateTime.now().plusMinutes(90));
+        // Default user role when registering
+        user.setRole(Role.USER);
         userRepository.save(user);
         emailService.sendActivationTokenEmail(user.getActivationToken(),
                 user.getEmail(), user.getId());
