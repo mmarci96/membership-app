@@ -1,5 +1,7 @@
 package com.codecool.sv_server.controller;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
@@ -131,7 +133,6 @@ public class AdminControllerIT {
                 .content(blogPostJson))
                 .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.error").value("Provide longer title!"));
-
     }
 
     @Test
@@ -157,7 +158,37 @@ public class AdminControllerIT {
                 .content(blogPostJson))
                 .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.error").value("Provide more content!"));
+    }
 
+    @Test
+    void test_delete_blogpost_with_valid_user() throws Exception {
+        var loginRes = loginUser("admin@mail.com", "Password1");
+        String token = loginRes.get("token").asText();
+
+        var title = "Delete me!";
+        var content = "This blogpost should be created and deleted";
+        CreateBlogPostDto blogPost = new CreateBlogPostDto(title, content);
+        String blogPostJson = objectMapper.writeValueAsString(blogPost);
+
+        var result = mockMvc.perform(post("/api/admin/blog")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(blogPostJson))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.id").exists())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+
+        JsonNode resJson = objectMapper.readTree(result);
+        long postId = resJson.get("id").asLong();
+        mockMvc.perform(delete("/api/admin/blog/" + postId)
+                .header("Authorization", "Bearer " + token))
+                .andExpect(status().isOk());
+
+        mockMvc.perform(get("/api/blog/" + postId)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isNotFound());
     }
 
 }

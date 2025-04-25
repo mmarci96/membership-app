@@ -21,7 +21,6 @@ public class BlogPostController {
 
     @GetMapping("/posts")
     public List<BlogPostDto> getPosts() {
-        System.out.println("posts service");
         return blogPostService.getAllBlogPosts().toList();
     }
 
@@ -29,6 +28,9 @@ public class BlogPostController {
     public ResponseEntity<BlogPostDto> getPostById(@PathVariable String id) {
         Long blogPostId = Long.parseLong(id);
         BlogPostDto blogPostDto = blogPostService.getBlogPostById(blogPostId);
+        if (blogPostDto == null) {
+            return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.ok(blogPostDto);
     }
 }

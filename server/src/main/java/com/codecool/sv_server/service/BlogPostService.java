@@ -5,6 +5,7 @@ import com.codecool.sv_server.dto.BlogPostUpdateDto;
 import com.codecool.sv_server.dto.CreateBlogPostDto;
 import com.codecool.sv_server.entity.BlogPost;
 import com.codecool.sv_server.exception.ApiException;
+import com.codecool.sv_server.exception.ResourceNotFoundException;
 import com.codecool.sv_server.repository.BlogPostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -71,19 +72,13 @@ public class BlogPostService {
         return null;
     }
 
-    public BlogPostDto deleteBlogPost(Long id) {
+    public void deleteBlogPost(Long id) {
         Optional<BlogPost> optionalPost = blogPostRepository.findById(id);
-
-        if (optionalPost.isPresent()) {
-            BlogPost post = optionalPost.get();
-            blogPostRepository.delete(post);
-            return new BlogPostDto(
-                    post.getId(),
-                    post.getTitle(),
-                    post.getContent(),
-                    post.getCreatedAt());
+        if (!optionalPost.isPresent()) {
+            throw new ResourceNotFoundException("Blog post");
         }
 
-        return null;
+        BlogPost post = optionalPost.get();
+        blogPostRepository.delete(post);
     }
 }
