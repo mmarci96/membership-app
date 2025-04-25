@@ -96,8 +96,9 @@ public class SecurityConfiguration {
             @Qualifier("requestMappingHandlerMapping") RequestMappingHandlerMapping mapping) {
         return args -> {
             System.out.println("\n📌 Available Endpoints:");
-            System.out.printf("%-10s | %s%n", "Method", "Endpoint");
-            System.out.println("+-----------+------------------------------------+");
+            System.out.println("+-----------+-------------------------------------+-----------+");
+            System.out.printf("| %-10s| %-36s| %-10s|%n", "Method", "Endpoint", "Auth");
+            System.out.println("+-----------+-------------------------------------+-----------+");
 
             mapping.getHandlerMethods().forEach((requestMappingInfo, handlerMethod) -> {
                 var methods = requestMappingInfo.getMethodsCondition().getMethods();
@@ -107,8 +108,8 @@ public class SecurityConfiguration {
                         : methods.stream().map(Enum::name).reduce((a, b) -> a + "," + b).orElse("ANY");
 
                 for (var pattern : patterns) {
-                    System.out.printf("| %-10s|%-36s|%n", methodStr, pattern);
-                    System.out.println("+-----------+------------------------------------+");
+                    System.out.printf("| %-10s| %-36s|%n", methodStr, pattern);
+                    System.out.println("+-----------+-------------------------------------+-----------+");
                 }
             });
         };

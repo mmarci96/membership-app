@@ -2,6 +2,7 @@ package com.codecool.sv_server.service;
 
 import com.codecool.sv_server.dto.BlogPostDto;
 import com.codecool.sv_server.dto.BlogPostUpdateDto;
+import com.codecool.sv_server.dto.CreateBlogPostDto;
 import com.codecool.sv_server.entity.BlogPost;
 import com.codecool.sv_server.repository.BlogPostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,7 +39,9 @@ public class BlogPostService {
                 .orElse(null);
     }
 
-    public BlogPostDto createBlogPost(String title, String content) {
+    public BlogPostDto createBlogPost(CreateBlogPostDto blogPostDto) {
+        String title = blogPostDto.title();
+        String content = blogPostDto.content();
         var blogPost = new BlogPost();
         blogPost.setTitle(title);
         blogPost.setContent(content);

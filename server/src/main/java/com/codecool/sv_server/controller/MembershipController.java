@@ -27,20 +27,17 @@ public class MembershipController {
         this.membershipPackageService = membershipPackageService;
     }
 
-    @GetMapping("/packages/{membershipPackageId}")
+    @GetMapping("/packages/{id}")
     public ResponseEntity<MembershipPackageDTO> getMembershipPackageContent(
-            @PathVariable Long membershipPackageId,
+            @PathVariable Long id,
             @AuthenticationPrincipal String userEmail) {
 
-        // Check if the user has an active membership
         Membership activeMembership = membershipService.findActiveMembershipByEmail(userEmail);
-
         if (activeMembership == null) {
-            return ResponseEntity.status(403).body(null); // Forbidden, user does not have active membership
+            return ResponseEntity.status(403).body(null);
         }
 
-        // Fetch the requested membership package
-        MembershipPackageDTO membershipPackageDTO = membershipPackageService.getPackageById(membershipPackageId);
+        MembershipPackageDTO membershipPackageDTO = membershipPackageService.getPackageById(id);
         return ResponseEntity.ok(membershipPackageDTO);
     }
 
