@@ -15,7 +15,7 @@ import com.codecool.sv_server.dto.SignupRequestDto;
 
 @SpringBootTest
 @ActiveProfiles("test")
-public class AuthServiceTest {
+public class AuthServiceIT {
     @Autowired
     private AuthService authService;
 
