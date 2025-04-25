@@ -6,6 +6,7 @@ import com.codecool.sv_server.dto.SignupResponseDto;
 import com.codecool.sv_server.dto.TokenCreateDto;
 import com.codecool.sv_server.entity.Role;
 import com.codecool.sv_server.entity.User;
+import com.codecool.sv_server.exception.ApiException;
 import com.codecool.sv_server.repository.UserRepository;
 import com.codecool.sv_server.utils.SignupRequestValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -43,7 +44,7 @@ public class AuthService {
     public SignupResponseDto registerUser(SignupRequestDto signupRequestDto) {
         SignupRequestValidator.validate(signupRequestDto);
         if (userRepository.findByEmail(signupRequestDto.email()) != null) {
-            return null;
+            throw new ApiException("Email already taken!", 409);
         }
         var user = new User();
         user.setEmail(signupRequestDto.email());
