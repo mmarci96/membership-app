@@ -1,29 +1,24 @@
 import React from "react";
-import {
-    Form,
-    Input,
-    Select,
-    SelectItem,
-    Checkbox,
-    Button,
-} from "@heroui/react";
+import { Form, Input, Checkbox, Button } from "@heroui/react";
 
 type FormValues = {
     name: string;
     email: string;
     password: string;
-    country: string;
     terms?: string;
 };
 
 type FormErrors = Partial<Record<keyof FormValues | "terms", string>>;
 
-export const AuthForm = () => {
+export const SignupForm = () => {
     const [password, setPassword] = React.useState("");
     const [submitted, setSubmitted] = React.useState<FormValues | null>(null);
     const [errors, setErrors] = React.useState<FormErrors>({});
 
     const getPasswordError = (value: string): string | null => {
+        if (password === "") {
+            return null;
+        }
         if (value.length < 8) {
             return "Password must be 8 characters or more";
         }
@@ -60,9 +55,7 @@ export const AuthForm = () => {
             setErrors(newErrors);
             return;
         }
-
         setErrors({});
-        console.log("Submit data: ", data);
 
         setSubmitted(data);
     };
@@ -143,7 +136,7 @@ export const AuthForm = () => {
 
                 <div className="flex gap-4">
                     <Button className="w-full" color="primary" type="submit">
-                        Submit
+                        Create Account
                     </Button>
                     <Button type="reset" variant="bordered">
                         Reset

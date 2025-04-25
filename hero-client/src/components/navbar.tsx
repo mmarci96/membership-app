@@ -28,11 +28,9 @@ import {
     ModalContent,
     ModalHeader,
     ModalBody,
-    ModalFooter,
     useDisclosure,
-    Checkbox,
 } from "@heroui/react";
-import { AuthForm } from "./auth-form";
+import { LoginForm } from "./login-form";
 
 export const Navbar = () => {
     const { isOpen, onOpen, onOpenChange } = useDisclosure();
@@ -134,10 +132,10 @@ export const Navbar = () => {
                     >
                         <ModalContent>
                             <ModalHeader className="flex flex-col gap-1">
-                                Log in or Sign up!
+                                Log in!
                             </ModalHeader>
                             <ModalBody>
-                                <AuthForm />
+                                <LoginForm />
                             </ModalBody>
                         </ModalContent>
                     </Modal>
