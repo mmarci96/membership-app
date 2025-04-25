@@ -55,14 +55,7 @@ public class AuthController {
         var userId = jwt.getClaimAsString("userId");
         long id = Long.parseLong(userId);
         var code = verifyCodeRequestDto.code();
-        boolean isActivated = userService.activateUserAccount(id, code);
-        if (isActivated) {
-            return ResponseEntity
-                    .ok("Account activated successfully!");
-        } else {
-            return ResponseEntity
-                    .badRequest()
-                    .body("Activation link is invalid or expired.");
-        }
+        userService.activateUserAccount(id, code);
+        return ResponseEntity.ok("Account activated successfully!");
     }
 }

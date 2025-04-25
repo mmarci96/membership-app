@@ -7,6 +7,7 @@ import com.codecool.sv_server.dto.TokenCreateDto;
 import com.codecool.sv_server.entity.Role;
 import com.codecool.sv_server.entity.User;
 import com.codecool.sv_server.exception.ApiException;
+import com.codecool.sv_server.exception.ResourceNotFoundException;
 import com.codecool.sv_server.repository.UserRepository;
 import com.codecool.sv_server.utils.SignupRequestValidator;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +21,7 @@ import java.util.UUID;
 @Service
 public class AuthService {
     private final UserRepository userRepository;
-    private final PasswordEncoder passwordEncoder;
+    private final PasswordEncoder pwdEncoder;
     private final EmailService emailService;
 
     @Autowired
@@ -28,14 +29,17 @@ public class AuthService {
             PasswordEncoder passwordEncoder,
             EmailService emailService) {
         this.userRepository = userRepository;
-        this.passwordEncoder = passwordEncoder;
+        this.pwdEncoder = passwordEncoder;
         this.emailService = emailService;
     }
 
     public TokenCreateDto validateLogin(LoginRequestDto loginRequestDto) {
         var u = (userRepository.findByEmail(loginRequestDto.email()));
-        if (u == null || !passwordEncoder.matches(loginRequestDto.password(), u.getPassword())) {
-            return null;
+        if (u == null) {
+            throw new ResourceNotFoundException("user");
+        }
+        if (!pwdEncoder.matches(loginRequestDto.password(), u.getPassword())) {
+            throw new ApiException("Invalid email or password", 401);
         }
         return new TokenCreateDto(u.getId(), u.getRole());
     }
@@ -49,7 +53,7 @@ public class AuthService {
         var user = new User();
         user.setEmail(signupRequestDto.email());
         user.setName(signupRequestDto.name());
-        user.setPassword(passwordEncoder.encode(signupRequestDto.password()));
+        user.setPassword(pwdEncoder.encode(signupRequestDto.password()));
         user.setEnabled(false);
         var activationToken = UUID.randomUUID().toString()
                 .toUpperCase().substring(0, 6);
@@ -64,19 +68,22 @@ public class AuthService {
     }
 
     @Transactional
-    public boolean activateUserAccount(Long userId, String activationToken) {
+    public void activateUserAccount(Long userId, String activationToken) {
         User user = userRepository.findById(userId).orElse(null);
         var now = LocalDateTime.now();
-        if (user == null ||
-                !user.getActivationToken().equals(activationToken) ||
-                user.getActivationExpirationTime().isBefore(now)) {
-            return false;
+        if (user == null) {
+            throw new ResourceNotFoundException("user");
+        }
+        if (!user.getActivationToken().equals(activationToken)) {
+            throw new ApiException("Invalid activation code!", 401);
+        }
+        if (user.getActivationExpirationTime().isBefore(now)) {
+            throw new ApiException("Activation code expired!", 498);
         }
         user.setEnabled(true);
         user.setActivationToken(null);
         user.setActivationExpirationTime(null);
         userRepository.save(user);
-        return true;
     }
 
     public void setuserRole(Long id, Role role) {
