@@ -47,7 +47,9 @@ public class SecurityConfiguration {
                         .requestMatchers("/api/auth/*").permitAll()
                         .requestMatchers("/api/blog/*").permitAll()
                         .requestMatchers("/api/stripe/*").permitAll()
-                        .requestMatchers("/api/hello").permitAll()
+                        .requestMatchers("/hello").permitAll()
+                        .requestMatchers("/health").permitAll()
+                        .requestMatchers("/ping").permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(Customizer.withDefaults()))
