@@ -4,6 +4,7 @@ import com.codecool.sv_server.dto.BlogPostDto;
 import com.codecool.sv_server.dto.BlogPostUpdateDto;
 import com.codecool.sv_server.dto.CreateBlogPostDto;
 import com.codecool.sv_server.entity.BlogPost;
+import com.codecool.sv_server.exception.ApiException;
 import com.codecool.sv_server.repository.BlogPostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -41,7 +42,13 @@ public class BlogPostService {
 
     public BlogPostDto createBlogPost(CreateBlogPostDto blogPostDto) {
         String title = blogPostDto.title();
+        if (title.length() <= 1) {
+            throw new ApiException("Provide longer title!", 400);
+        }
         String content = blogPostDto.content();
+        if (content.length() <= 10) {
+            throw new ApiException("Provide more content!", 400);
+        }
         var blogPost = new BlogPost();
         blogPost.setTitle(title);
         blogPost.setContent(content);

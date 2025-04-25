@@ -109,7 +109,7 @@ public class AdminControllerIT {
     }
 
     @Test
-    void test_invalid_post_creation_as_content_creator() throws Exception {
+    void test_invalid_title_post_creation_as_content_creator() throws Exception {
         var name = "Content Creator Tester";
         var email = "content_creator@mail.com";
         var password = "Password1";
@@ -129,8 +129,34 @@ public class AdminControllerIT {
                 .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(blogPostJson))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.title").value(title));
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.error").value("Provide longer title!"));
+
+    }
+
+    @Test
+    void test_invalid_content_post_creation_as_content_creator() throws Exception {
+        var name = "Content Creator Tester";
+        var email = "content_creator_c@mail.com";
+        var password = "Password1";
+        registerUser(email, name, password);
+        User user = userRepository.findByEmail(email);
+        user.setRole(Role.CONTENT_CREATOR);
+        userRepository.save(user);
+
+        var title = "Valid title.";
+        var content = "2short";
+        CreateBlogPostDto blogPost = new CreateBlogPostDto(title, content);
+        String blogPostJson = objectMapper.writeValueAsString(blogPost);
+
+        var loginRes = loginUser(email, password);
+        String token = loginRes.get("token").asText();
+        mockMvc.perform(post("/api/admin/blog")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(blogPostJson))
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.error").value("Provide more content!"));
 
     }
 

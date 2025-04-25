@@ -15,10 +15,11 @@ public class BlogPost {
     private Long id;
 
     @Setter
+    @Column(nullable = false)
     private String title;
 
-    @Column(columnDefinition = "TEXT")
     @Setter
+    @Column(columnDefinition = "TEXT", nullable = false)
     private String content;
 
     private LocalDateTime createdAt;
