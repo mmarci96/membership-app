@@ -2,7 +2,6 @@ package com.codecool.sv_server.controller;
 
 import com.codecool.sv_server.dto.LoginRequestDto;
 import com.codecool.sv_server.dto.LoginResponseDto;
-import com.codecool.sv_server.dto.SignupResponseDto;
 import com.codecool.sv_server.dto.TokenCreateDto;
 import com.codecool.sv_server.dto.SignupRequestDto;
 import com.codecool.sv_server.service.AuthService;

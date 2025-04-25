@@ -47,6 +47,7 @@ public class AuthService {
         }
         var user = new User();
         user.setEmail(signupRequestDto.email());
+        user.setName(signupRequestDto.name());
         user.setPassword(passwordEncoder.encode(signupRequestDto.password()));
         user.setEnabled(false);
         user.setActivationToken(UUID.randomUUID().toString());
