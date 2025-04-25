@@ -50,15 +50,16 @@ public class AuthService {
         user.setName(signupRequestDto.name());
         user.setPassword(passwordEncoder.encode(signupRequestDto.password()));
         user.setEnabled(false);
-        var activationToken = UUID.randomUUID()
-                .toString().toUpperCase().substring(0, 6);
+        var activationToken = UUID.randomUUID().toString()
+                .toUpperCase().substring(0, 6);
         user.setActivationToken(activationToken);
         user.setActivationExpirationTime(LocalDateTime.now().plusMinutes(90));
-        // Default user role when registering
         user.setRole(Role.USER);
         userRepository.save(user);
-        emailService.sendActivationTokenEmail(user.getActivationToken(), user.getEmail());
-        return new SignupResponseDto(user.getEmail(), user.getId());
+        var code = user.getActivationToken();
+        var email = user.getEmail();
+        emailService.sendActivationTokenEmail(code, email);
+        return new SignupResponseDto(email, user.getId());
     }
 
     @Transactional

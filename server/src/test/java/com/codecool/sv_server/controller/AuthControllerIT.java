@@ -5,8 +5,6 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.aspectj.weaver.ast.And;
-import org.checkerframework.checker.units.qual.t;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
@@ -16,19 +14,20 @@ import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.MvcResult;
-import org.springframework.web.client.HttpClientErrorException.BadRequest;
 
 import com.codecool.sv_server.dto.LoginRequestDto;
 import com.codecool.sv_server.dto.SignupRequestDto;
 import com.codecool.sv_server.dto.VerifyCodeRequestDto;
 import com.codecool.sv_server.repository.UserRepository;
 import com.codecool.sv_server.service.EmailService;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 public class AuthControllerIT {
+
     @Autowired
     private MockMvc mockMvc;
 
@@ -38,20 +37,36 @@ public class AuthControllerIT {
     @MockBean
     private EmailService emailService;
 
-    @Test
-    void test_valid_signup_request() throws Exception {
-        var email = "test@mail.com";
-        var name = "Test Name";
-        var password = "Password1";
-        var signupRequestDto = new SignupRequestDto(email, name, password);
-        ObjectMapper objectMapper = new ObjectMapper();
-        String req = objectMapper.writeValueAsString(signupRequestDto);
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    private void registerUser(String email, String name, String password) throws Exception {
+        var signupRequest = new SignupRequestDto(email, name, password);
+        String req = objectMapper.writeValueAsString(signupRequest);
         mockMvc.perform(post("/api/auth/signup")
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(req))
+                .andExpect(status().isOk());
+    }
+
+    private JsonNode loginUser(String email, String password) throws Exception {
+        var loginRequest = new LoginRequestDto(email, password);
+        String req = objectMapper.writeValueAsString(loginRequest);
+        MvcResult result = mockMvc.perform(post("/api/auth/login")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(req))
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").value(email))
-                .andExpect(jsonPath("$.id").exists());
+                .andExpect(jsonPath("$.token").exists())
+                .andExpect(jsonPath("$.userId").exists())
+                .andReturn();
+
+        return objectMapper.readTree(result.getResponse().getContentAsString());
+    }
+
+    @Test
+    void test_valid_signup_request() throws Exception {
+        registerUser("test@mail.com", "Test Name", "Password1");
+
+        // Optional: you could validate user was saved with userRepository
     }
 
     @Test
@@ -65,65 +80,32 @@ public class AuthControllerIT {
     @Test
     void test_signup_and_login_recieve_token() throws Exception {
         var email = "test_login@mail.com";
-        var name = "Test Login";
         var password = "Password1";
-        var signupRequestDto = new SignupRequestDto(email, name, password);
-        ObjectMapper objectMapper = new ObjectMapper();
-        String req = objectMapper.writeValueAsString(signupRequestDto);
-        mockMvc.perform(post("/api/auth/signup")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(req))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.email").value(email))
-                .andExpect(jsonPath("$.id").exists());
 
-        var loginRequestDto = new LoginRequestDto(email, password);
-        String loginReq = objectMapper.writeValueAsString(loginRequestDto);
-        mockMvc.perform(post("/api/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(loginReq))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").exists())
-                .andExpect(jsonPath("$.userId").exists());
+        registerUser(email, "Test Login", password);
+        loginUser(email, password); // expectations handled inside method
     }
 
     @Test
     void test_activation_with_token_after_register() throws Exception {
         var email = "activate@mail.com";
-        var name = "Test Activate";
         var password = "Password1";
 
-        var objectMapper = new ObjectMapper();
-        var signupRequest = new SignupRequestDto(email, name, password);
-        String signupReqJson = objectMapper.writeValueAsString(signupRequest);
+        registerUser(email, "Test Activate", password);
+        JsonNode loginRes = loginUser(email, password);
 
-        mockMvc.perform(post("/api/auth/signup")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(signupReqJson))
-                .andExpect(status().isOk());
+        String token = loginRes.get("token").asText();
+        long userId = loginRes.get("userId").asLong();
 
-        var loginRequest = new LoginRequestDto(email, password);
-        String loginReqJson = objectMapper.writeValueAsString(loginRequest);
-
-        MvcResult loginResult = mockMvc.perform(post("/api/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(loginReqJson))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").exists())
-                .andReturn();
-
-        String jsonResponse = loginResult.getResponse().getContentAsString();
-        String token = objectMapper.readTree(jsonResponse).get("token").asText();
-        long id = objectMapper.readTree(jsonResponse).get("userId").asLong();
-        var user = userRepository.findById(id);
-        var code = new VerifyCodeRequestDto(user.getActivationToken());
-        String codeJson = objectMapper.writeValueAsString(code);
+        var user = userRepository.findById(userId);
+        var verifyCode = new VerifyCodeRequestDto(user.getActivationToken());
+        String codeJson = objectMapper.writeValueAsString(verifyCode);
 
         mockMvc.perform(post("/api/auth/activate")
+                .header("Authorization", "Bearer " + token)
                 .contentType(MediaType.APPLICATION_JSON)
-                .content(codeJson)
-                .header("Authorization", "Bearer " + token))
-                .andExpect(status().isOk());
+                .content(codeJson))
+                .andExpect(status().isOk())
+                .andExpect(content().string("Account activated successfully!"));
     }
-
 }

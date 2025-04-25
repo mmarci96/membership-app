@@ -3,11 +3,14 @@ package com.codecool.sv_server.controller;
 import com.codecool.sv_server.dto.LoginRequestDto;
 import com.codecool.sv_server.dto.LoginResponseDto;
 import com.codecool.sv_server.dto.TokenCreateDto;
+import com.codecool.sv_server.dto.VerifyCodeRequestDto;
 import com.codecool.sv_server.dto.SignupRequestDto;
 import com.codecool.sv_server.service.AuthService;
 import com.codecool.sv_server.service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -45,14 +48,21 @@ public class AuthController {
         return ResponseEntity.ok(res);
     }
 
-    @GetMapping("/activate")
-    public ResponseEntity<String> activateAccount(@RequestParam("token") String token,
-            @RequestParam("userId") Long userId) {
-        boolean isActivated = userService.activateUserAccount(userId, token);
+    @PostMapping("/activate")
+    public ResponseEntity<?> activateAccount(
+            @RequestBody VerifyCodeRequestDto verifyCodeRequestDto,
+            @AuthenticationPrincipal Jwt jwt) {
+        var userId = jwt.getClaimAsString("userId");
+        long id = Long.parseLong(userId);
+        var code = verifyCodeRequestDto.code();
+        boolean isActivated = userService.activateUserAccount(id, code);
         if (isActivated) {
-            return ResponseEntity.ok("Account activated successfully!");
+            return ResponseEntity
+                    .ok("Account activated successfully!");
         } else {
-            return ResponseEntity.badRequest().body("Activation link is invalid or expired.");
+            return ResponseEntity
+                    .badRequest()
+                    .body("Activation link is invalid or expired.");
         }
     }
 }
