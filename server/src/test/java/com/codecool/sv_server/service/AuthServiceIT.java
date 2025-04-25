@@ -1,4 +1,4 @@
-package com.codecool.sv_server;
+package com.codecool.sv_server.service;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -12,12 +12,10 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.codecool.sv_server.dto.SignupRequestDto;
-import com.codecool.sv_server.service.AuthService;
-import com.codecool.sv_server.service.EmailService;
 
 @SpringBootTest
 @ActiveProfiles("test")
-public class AuthServiceTest {
+public class AuthServiceIT {
     @Autowired
     private AuthService authService;
 
@@ -28,7 +26,8 @@ public class AuthServiceTest {
     void testCreateUserWithValidPassword() {
         var email = "test@mail.com";
         var password = "Password123";
-        var signupRequest = new SignupRequestDto(email, password);
+        var name = "test name";
+        var signupRequest = new SignupRequestDto(email, name, password);
 
         var result = authService.registerUser(signupRequest);
         assertEquals(result.email(), email);
@@ -37,7 +36,7 @@ public class AuthServiceTest {
 
     @Test
     void testEmptyEmailThrowsException() {
-        var signupRequest = new SignupRequestDto("", "Password1");
+        var signupRequest = new SignupRequestDto("", "name", "Password1");
         var exception = assertThrows(IllegalArgumentException.class,
                 () -> authService.registerUser(signupRequest));
         assertEquals("Email must not be empty", exception.getMessage());
@@ -45,7 +44,7 @@ public class AuthServiceTest {
 
     @Test
     void testInvalidEmailFormatThrowsException() {
-        var signupRequest = new SignupRequestDto("notanemail.com", "Password1");
+        var signupRequest = new SignupRequestDto("notanemail.com", "name", "Password1");
         var exception = assertThrows(IllegalArgumentException.class,
                 () -> authService.registerUser(signupRequest));
         assertEquals("Invalid email format", exception.getMessage());
@@ -53,7 +52,7 @@ public class AuthServiceTest {
 
     @Test
     void testShortPasswordThrowsException() {
-        var signupRequest = new SignupRequestDto("test@mail.com", "Ab1");
+        var signupRequest = new SignupRequestDto("test@mail.com", "name", "Ab1");
         var exception = assertThrows(IllegalArgumentException.class,
                 () -> authService.registerUser(signupRequest));
         assertEquals("Password must be at least 6 characters", exception.getMessage());
@@ -61,7 +60,7 @@ public class AuthServiceTest {
 
     @Test
     void testPasswordWithoutDigitThrowsException() {
-        var signupRequest = new SignupRequestDto("test@mail.com", "Password");
+        var signupRequest = new SignupRequestDto("test@mail.com", "name", "Password");
         var exception = assertThrows(IllegalArgumentException.class,
                 () -> authService.registerUser(signupRequest));
         assertEquals("Password must contain at least one digit", exception.getMessage());
@@ -69,7 +68,7 @@ public class AuthServiceTest {
 
     @Test
     void testPasswordWithoutUppercaseThrowsException() {
-        var signupRequest = new SignupRequestDto("test@mail.com", "password1");
+        var signupRequest = new SignupRequestDto("test@mail.com", "name", "password1");
         var exception = assertThrows(IllegalArgumentException.class,
                 () -> authService.registerUser(signupRequest));
         assertEquals("Password must contain at least one uppercase letter", exception.getMessage());
@@ -77,7 +76,7 @@ public class AuthServiceTest {
 
     @Test
     void testValidSignupDoesNotThrow() {
-        var signupRequest = new SignupRequestDto("valid@mail.com", "Password1");
+        var signupRequest = new SignupRequestDto("valid@mail.com", "name", "Password1");
         assertDoesNotThrow(() -> authService.registerUser(signupRequest));
     }
 }

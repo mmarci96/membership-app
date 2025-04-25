@@ -2,7 +2,10 @@ package com.codecool.sv_server.service;
 
 import com.codecool.sv_server.dto.BlogPostDto;
 import com.codecool.sv_server.dto.BlogPostUpdateDto;
+import com.codecool.sv_server.dto.CreateBlogPostDto;
 import com.codecool.sv_server.entity.BlogPost;
+import com.codecool.sv_server.exception.ApiException;
+import com.codecool.sv_server.exception.ResourceNotFoundException;
 import com.codecool.sv_server.repository.BlogPostRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -38,7 +41,15 @@ public class BlogPostService {
                 .orElse(null);
     }
 
-    public BlogPostDto createBlogPost(String title, String content) {
+    public BlogPostDto createBlogPost(CreateBlogPostDto blogPostDto) {
+        String title = blogPostDto.title();
+        if (title.length() <= 1) {
+            throw new ApiException("Provide longer title!", 400);
+        }
+        String content = blogPostDto.content();
+        if (content.length() <= 10) {
+            throw new ApiException("Provide more content!", 400);
+        }
         var blogPost = new BlogPost();
         blogPost.setTitle(title);
         blogPost.setContent(content);
@@ -56,24 +67,22 @@ public class BlogPostService {
             post.setContent(updateData.content());
             post.setTitle(updateData.title());
             blogPostRepository.save(post);
-            return new BlogPostDto(post.getId(), post.getTitle(), post.getContent(), post.getCreatedAt());
-        }
-        return null;
-    }
-
-    public BlogPostDto deleteBlogPost(Long id) {
-        Optional<BlogPost> optionalPost = blogPostRepository.findById(id);
-
-        if (optionalPost.isPresent()) {
-            BlogPost post = optionalPost.get();
-            blogPostRepository.delete(post);
             return new BlogPostDto(
                     post.getId(),
                     post.getTitle(),
                     post.getContent(),
                     post.getCreatedAt());
         }
-
         return null;
+    }
+
+    public void deleteBlogPost(Long id) {
+        Optional<BlogPost> optionalPost = blogPostRepository.findById(id);
+        if (!optionalPost.isPresent()) {
+            throw new ResourceNotFoundException("Blog post");
+        }
+
+        BlogPost post = optionalPost.get();
+        blogPostRepository.delete(post);
     }
 }

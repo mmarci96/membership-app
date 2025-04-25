@@ -8,6 +8,7 @@ import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -25,6 +26,9 @@ import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
+import org.springframework.boot.CommandLineRunner;
+import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
+
 @Configuration
 @EnableWebSecurity
 public class SecurityConfiguration {
@@ -39,10 +43,13 @@ public class SecurityConfiguration {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http
                 .csrf(AbstractHttpConfigurer::disable)
-                .authorizeHttpRequests(request -> request.requestMatchers("/api/auth/*").permitAll()
+                .authorizeHttpRequests(request -> request
+                        .requestMatchers("/api/auth/*").permitAll()
                         .requestMatchers("/api/blog/*").permitAll()
                         .requestMatchers("/api/stripe/*").permitAll()
-                        .requestMatchers("/api/hello").permitAll()
+                        .requestMatchers("/hello").permitAll()
+                        .requestMatchers("/health").permitAll()
+                        .requestMatchers("/ping").permitAll()
                         .anyRequest().authenticated())
                 .oauth2ResourceServer(oauth2 -> oauth2
                         .jwt(Customizer.withDefaults()))
@@ -85,4 +92,28 @@ public class SecurityConfiguration {
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
+
+    @Bean
+    public CommandLineRunner logEndpoints(
+            @Qualifier("requestMappingHandlerMapping") RequestMappingHandlerMapping mapping) {
+        return args -> {
+            System.out.println("+-----------+-------------------------------------+");
+            System.out.printf("| %-10s| %-36s|%n", "Method", "Endpoint");
+            System.out.println("+-----------+-------------------------------------+");
+
+            mapping.getHandlerMethods().forEach((requestMappingInfo, handlerMethod) -> {
+                var methods = requestMappingInfo.getMethodsCondition().getMethods();
+                var patterns = requestMappingInfo.getPathPatternsCondition().getPatterns();
+
+                String methodStr = methods.isEmpty() ? "ANY"
+                        : methods.stream().map(Enum::name).reduce((a, b) -> a + "," + b).orElse("ANY");
+
+                for (var pattern : patterns) {
+                    System.out.printf("| %-10s| %-36s|%n", methodStr, pattern);
+                    System.out.println("+-----------+-------------------------------------+");
+                }
+            });
+        };
+    }
+
 }

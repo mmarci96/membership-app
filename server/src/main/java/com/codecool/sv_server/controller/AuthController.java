@@ -2,12 +2,15 @@ package com.codecool.sv_server.controller;
 
 import com.codecool.sv_server.dto.LoginRequestDto;
 import com.codecool.sv_server.dto.LoginResponseDto;
-import com.codecool.sv_server.dto.SignupResponseDto;
+import com.codecool.sv_server.dto.TokenCreateDto;
+import com.codecool.sv_server.dto.VerifyCodeRequestDto;
 import com.codecool.sv_server.dto.SignupRequestDto;
 import com.codecool.sv_server.service.AuthService;
 import com.codecool.sv_server.service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -24,21 +27,19 @@ public class AuthController {
     }
 
     @PostMapping("/login")
-    public ResponseEntity<LoginResponseDto> loginReqController(
-            @RequestBody LoginRequestDto loginRequestDto) {
-
-        long userId = userService.validateLogin(loginRequestDto);
-        if (userId <= 0) {
-            return ResponseEntity.status(401).build();
+    public ResponseEntity<?> loginReqController(@RequestBody LoginRequestDto loginRequestDto) {
+        TokenCreateDto data = userService.validateLogin(loginRequestDto);
+        if (data == null) {
+            return ResponseEntity.status(401).body("Invalid email or password!");
         }
 
-        String token = tokenService.generateToken(loginRequestDto.email());
-
-        return ResponseEntity.ok(new LoginResponseDto(token, userId));
+        String token = tokenService.generateToken(loginRequestDto.email(),
+                data.role(), data.id());
+        return ResponseEntity.ok(new LoginResponseDto(token, data.id()));
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<SignupResponseDto> signup(
+    public ResponseEntity<?> signup(
             @RequestBody SignupRequestDto signupRequestDto) {
         var res = userService.registerUser(signupRequestDto);
         if (res == null) {
@@ -47,14 +48,14 @@ public class AuthController {
         return ResponseEntity.ok(res);
     }
 
-    @GetMapping("/activate")
-    public ResponseEntity<String> activateAccount(@RequestParam("token") String token,
-            @RequestParam("userId") Long userId) {
-        boolean isActivated = userService.activateUserAccount(userId, token);
-        if (isActivated) {
-            return ResponseEntity.ok("Account activated successfully!");
-        } else {
-            return ResponseEntity.badRequest().body("Activation link is invalid or expired.");
-        }
+    @PostMapping("/activate")
+    public ResponseEntity<?> activateAccount(
+            @RequestBody VerifyCodeRequestDto verifyCodeRequestDto,
+            @AuthenticationPrincipal Jwt jwt) {
+        var userId = jwt.getClaimAsString("userId");
+        long id = Long.parseLong(userId);
+        var code = verifyCodeRequestDto.code();
+        userService.activateUserAccount(id, code);
+        return ResponseEntity.ok("Account activated successfully!");
     }
 }
