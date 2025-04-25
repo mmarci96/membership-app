@@ -1,4 +1,4 @@
-package com.codecool.sv_server;
+package com.codecool.sv_server.service;
 
 import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
 import static org.junit.jupiter.api.Assertions.assertEquals;
@@ -12,8 +12,6 @@ import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.test.context.ActiveProfiles;
 
 import com.codecool.sv_server.dto.SignupRequestDto;
-import com.codecool.sv_server.service.AuthService;
-import com.codecool.sv_server.service.EmailService;
 
 @SpringBootTest
 @ActiveProfiles("test")

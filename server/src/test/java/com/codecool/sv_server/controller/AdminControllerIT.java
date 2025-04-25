@@ -4,70 +4,26 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.Test;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 
 import com.codecool.sv_server.dto.BlogPostUpdateDto;
 import com.codecool.sv_server.dto.CreateBlogPostDto;
-import com.codecool.sv_server.dto.LoginRequestDto;
-import com.codecool.sv_server.dto.SignupRequestDto;
 import com.codecool.sv_server.entity.Role;
 import com.codecool.sv_server.entity.User;
 import org.springframework.test.context.ActiveProfiles;
-import org.springframework.test.web.servlet.MockMvc;
-import org.springframework.test.web.servlet.MvcResult;
 
-import com.codecool.sv_server.repository.UserRepository;
-import com.codecool.sv_server.service.EmailService;
 import com.fasterxml.jackson.databind.JsonNode;
-import com.fasterxml.jackson.databind.ObjectMapper;
 
 @SpringBootTest
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
-public class AdminControllerIT {
-
-    @Autowired
-    private MockMvc mockMvc;
-
-    @Autowired
-    private UserRepository userRepository;
-
-    @MockBean
-    private EmailService emailService;
-
-    private final ObjectMapper objectMapper = new ObjectMapper();
-
-    private void registerUser(String email, String name, String password) throws Exception {
-        var signupRequest = new SignupRequestDto(email, name, password);
-        String req = objectMapper.writeValueAsString(signupRequest);
-        mockMvc.perform(post("/api/auth/signup")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(req))
-                .andExpect(status().isOk());
-    }
-
-    private JsonNode loginUser(String email, String password) throws Exception {
-        var loginRequest = new LoginRequestDto(email, password);
-        String req = objectMapper.writeValueAsString(loginRequest);
-        MvcResult result = mockMvc.perform(post("/api/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(req))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.token").exists())
-                .andExpect(jsonPath("$.userId").exists())
-                .andReturn();
-
-        return objectMapper.readTree(result.getResponse().getContentAsString());
-    }
+public class AdminControllerIT extends BaseIntegrationTest {
 
     @Test
     void test_valid_blog_post_creation_with_role() throws Exception {
