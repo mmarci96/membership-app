@@ -67,8 +67,6 @@ public class AuthControllerIT {
     @Test
     void test_valid_signup_request() throws Exception {
         registerUser("test@mail.com", "Test Name", "Password1");
-
-        // Optional: you could validate user was saved with userRepository
     }
 
     @Test

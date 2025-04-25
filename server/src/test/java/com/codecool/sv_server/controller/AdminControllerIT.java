@@ -1,7 +1,6 @@
 package com.codecool.sv_server.controller;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -73,6 +72,7 @@ public class AdminControllerIT {
         registerUser(email, name, password);
         User user = userRepository.findByEmail(email);
         user.setRole(Role.ADMIN);
+        userRepository.save(user);
 
         var title = "Test Title";
         var content = "Test Blogpost Text Content. Lorem ipsum lore.";
@@ -83,11 +83,29 @@ public class AdminControllerIT {
         String token = loginRes.get("token").asText();
 
         mockMvc.perform(post("/api/admin/blog")
-                .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
                 .content(blogPostJson))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value(title));
+    }
+
+    @Test
+    void test_valid_post_creation_with_invalid_role() throws Exception {
+        var name = "User Tester";
+        var email = "user@email.com";
+        var password = "Password1";
+        registerUser(email, name, password);
+        var loginRes = loginUser(email, password);
+        String token = loginRes.get("token").asText();
+        CreateBlogPostDto badBlogPost = new CreateBlogPostDto("Title", "Should fail!");
+        String blogPostJson = objectMapper.writeValueAsString(badBlogPost);
+
+        mockMvc.perform(post("/api/admin/blog")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(blogPostJson))
+                .andExpect(status().isBadRequest());
     }
 
 }

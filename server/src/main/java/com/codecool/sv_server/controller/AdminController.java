@@ -27,26 +27,27 @@ public class AdminController {
 
     @PostMapping("/blog")
     public ResponseEntity<?> createBlogPost(
+            @AuthenticationPrincipal Jwt jwt,
             @RequestBody CreateBlogPostDto blogPostDto) {
-        System.out.println("Request on /api/admin/blog POST");
-        var roleString = "ADMIN";// jwt.getClaimAsString("role");
+        var roleString = jwt.getClaimAsString("role");
         Role userRole = null;
         for (Role role : Role.values()) {
-            if (roleString == role.name()) {
+            if (roleString.equals(role.toString())) {
                 userRole = role;
             }
         }
         if (userRole == null) {
             return ResponseEntity.badRequest().body("Role invalid!");
         }
-        if (userRole == Role.CONTENT_CREATOR || userRole == Role.ADMIN) {
-            var blogPost = blogPostService.createBlogPost(blogPostDto);
-            var responseData = new BlogPostDto(blogPost.id(),
-                    blogPost.title(), blogPost.content(), blogPost.createdAt());
-            return ResponseEntity.ok(responseData);
+        if (userRole != Role.CONTENT_CREATOR && userRole != Role.ADMIN) {
+            return ResponseEntity.badRequest().body("Unauthorized role!");
         }
 
-        return ResponseEntity.badRequest().body("Unexpected error!");
+        var blogPost = blogPostService.createBlogPost(blogPostDto);
+        var responseData = new BlogPostDto(blogPost.id(),
+                blogPost.title(), blogPost.content(), blogPost.createdAt());
+        return ResponseEntity.ok(responseData);
+
     }
 
 }
