@@ -48,7 +48,7 @@ public class AdminController {
         return ResponseEntity.ok(responseData);
     }
 
-    @PatchMapping("/blog/:id")
+    @PatchMapping("/blog")
     public ResponseEntity<?> updateBlogPost(
             @AuthenticationPrincipal Jwt jwt,
             @RequestBody BlogPostUpdateDto updateData) {
@@ -58,7 +58,7 @@ public class AdminController {
             return ResponseEntity.badRequest().body("Role invalid!");
         }
         if (userRole != Role.CONTENT_CREATOR && userRole != Role.ADMIN) {
-            return ResponseEntity.badRequest().body("Unauthorized role!");
+            return ResponseEntity.status(403).body("Unauthorized role!");
         }
         var updatedBlogPost = blogPostService.updateBlogPost(updateData);
         return ResponseEntity.ok(updatedBlogPost);

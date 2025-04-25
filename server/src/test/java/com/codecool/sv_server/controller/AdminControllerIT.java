@@ -2,7 +2,9 @@ package com.codecool.sv_server.controller;
 
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.delete;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.patch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
@@ -13,6 +15,7 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.boot.test.mock.mockito.MockBean;
 import org.springframework.http.MediaType;
 
+import com.codecool.sv_server.dto.BlogPostUpdateDto;
 import com.codecool.sv_server.dto.CreateBlogPostDto;
 import com.codecool.sv_server.dto.LoginRequestDto;
 import com.codecool.sv_server.dto.SignupRequestDto;
@@ -191,4 +194,79 @@ public class AdminControllerIT {
                 .andExpect(status().isNotFound());
     }
 
+    @Test
+    void test_create_blog_with_invalid_role_in_jwt() throws Exception {
+        var email = "weirdrole@mail.com";
+        var password = "Password1";
+        registerUser(email, "Weird Role", password);
+        User user = userRepository.findByEmail(email);
+        user.setRole(Role.MEMBER);
+        userRepository.save(user);
+
+        var loginRes = loginUser(email, password);
+        String token = loginRes.get("token").asText();
+
+        var blogPost = new CreateBlogPostDto("Weird", "Should fail due to invalid role string");
+        String postJson = objectMapper.writeValueAsString(blogPost);
+
+        mockMvc.perform(post("/api/admin/blog")
+                .contentType(MediaType.APPLICATION_JSON)
+                .header("Authorization", "Bearer " + token)
+                .content(postJson))
+                .andExpect(status().isBadRequest())
+                .andExpect(content().string("Unauthorized role!"));
+    }
+
+    @Test
+    void test_create_blogpost_with_null_body() throws Exception {
+        var loginRes = loginUser("admin@mail.com", "Password1");
+        String token = loginRes.get("token").asText();
+
+        mockMvc.perform(post("/api/admin/blog")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON))
+                .andExpect(status().isBadRequest())
+                .andExpect(jsonPath("$.error").exists());
+    }
+
+    @Test
+    void test_update_blogpost_with_unauthorized_role() throws Exception {
+        var email = "randomuser@mail.com";
+        var password = "Password1";
+        registerUser(email, "Random", password);
+        var loginRes = loginUser(email, password);
+        String token = loginRes.get("token").asText();
+
+        var updateDto = new BlogPostUpdateDto(1L, "New Title", "Updated Content");
+        String updateJson = objectMapper.writeValueAsString(updateDto);
+
+        mockMvc.perform(patch("/api/admin/blog")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(updateJson))
+                .andExpect(status().is4xxClientError())
+                .andExpect(content().string("Unauthorized role!"));
+    }
+
+    @Test
+    void test_delete_blogpost_with_invalid_id() throws Exception {
+        var loginRes = loginUser("admin@mail.com", "Password1");
+        String token = loginRes.get("token").asText();
+
+        mockMvc.perform(delete("/api/admin/blog/999999")
+                .header("Authorization", "Bearer " + token))
+                .andExpect(status().isNotFound())
+                .andExpect(jsonPath("$.error").value("Resource not found: Blog post"));
+    }
+
+    @Test
+    void test_post_blog_without_auth_header() throws Exception {
+        CreateBlogPostDto post = new CreateBlogPostDto("Title", "No token should block me!");
+        String json = objectMapper.writeValueAsString(post);
+
+        mockMvc.perform(post("/api/admin/blog")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(json))
+                .andExpect(status().is4xxClientError());
+    }
 }
