@@ -108,4 +108,30 @@ public class AdminControllerIT {
                 .andExpect(status().isBadRequest());
     }
 
+    @Test
+    void test_invalid_post_creation_as_content_creator() throws Exception {
+        var name = "Content Creator Tester";
+        var email = "content_creator@mail.com";
+        var password = "Password1";
+        registerUser(email, name, password);
+        User user = userRepository.findByEmail(email);
+        user.setRole(Role.CONTENT_CREATOR);
+        userRepository.save(user);
+
+        var title = "";
+        var content = "Creating with content creator. Test Blogpost Text Content.";
+        CreateBlogPostDto blogPost = new CreateBlogPostDto(title, content);
+        String blogPostJson = objectMapper.writeValueAsString(blogPost);
+
+        var loginRes = loginUser(email, password);
+        String token = loginRes.get("token").asText();
+        mockMvc.perform(post("/api/admin/blog")
+                .header("Authorization", "Bearer " + token)
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(blogPostJson))
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.title").value(title));
+
+    }
+
 }
