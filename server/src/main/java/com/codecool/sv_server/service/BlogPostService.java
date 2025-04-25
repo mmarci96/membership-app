@@ -67,7 +67,11 @@ public class BlogPostService {
             post.setContent(updateData.content());
             post.setTitle(updateData.title());
             blogPostRepository.save(post);
-            return new BlogPostDto(post.getId(), post.getTitle(), post.getContent(), post.getCreatedAt());
+            return new BlogPostDto(
+                    post.getId(),
+                    post.getTitle(),
+                    post.getContent(),
+                    post.getCreatedAt());
         }
         return null;
     }

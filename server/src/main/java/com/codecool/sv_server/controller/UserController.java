@@ -18,8 +18,9 @@ public class UserController {
     @GetMapping("/account/{id}")
     public ResponseEntity<UserDetailsDto> getUserDetails(@PathVariable long id) {
         var res = userDetailsService.getUserDetailsByUserId(id);
-        if (res == null)
+        if (res == null) {
             return ResponseEntity.notFound().build();
+        }
         return ResponseEntity.ok(res);
     }
 

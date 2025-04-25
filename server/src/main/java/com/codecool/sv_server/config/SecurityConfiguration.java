@@ -95,7 +95,6 @@ public class SecurityConfiguration {
     public CommandLineRunner logEndpoints(
             @Qualifier("requestMappingHandlerMapping") RequestMappingHandlerMapping mapping) {
         return args -> {
-            System.out.println("\n📌 Available Endpoints:");
             System.out.println("+-----------+-------------------------------------+");
             System.out.printf("| %-10s| %-36s|%n", "Method", "Endpoint");
             System.out.println("+-----------+-------------------------------------+");

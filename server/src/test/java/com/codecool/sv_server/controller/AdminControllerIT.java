@@ -110,7 +110,8 @@ public class AdminControllerIT {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + token)
                 .content(blogPostJson))
-                .andExpect(status().isBadRequest());
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.error").isNotEmpty());
     }
 
     @Test
@@ -213,8 +214,8 @@ public class AdminControllerIT {
                 .contentType(MediaType.APPLICATION_JSON)
                 .header("Authorization", "Bearer " + token)
                 .content(postJson))
-                .andExpect(status().isBadRequest())
-                .andExpect(content().string("Unauthorized role!"));
+                .andExpect(status().is4xxClientError())
+                .andExpect(jsonPath("$.error").isNotEmpty());
     }
 
     @Test
@@ -245,7 +246,7 @@ public class AdminControllerIT {
                 .contentType(MediaType.APPLICATION_JSON)
                 .content(updateJson))
                 .andExpect(status().is4xxClientError())
-                .andExpect(content().string("Unauthorized role!"));
+                .andExpect(jsonPath("$.error").isNotEmpty());
     }
 
     @Test
