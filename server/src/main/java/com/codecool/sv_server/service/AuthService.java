@@ -50,29 +50,30 @@ public class AuthService {
         user.setName(signupRequestDto.name());
         user.setPassword(passwordEncoder.encode(signupRequestDto.password()));
         user.setEnabled(false);
-        user.setActivationToken(UUID.randomUUID().toString());
+        var activationToken = UUID.randomUUID()
+                .toString().toUpperCase().substring(0, 6);
+        user.setActivationToken(activationToken);
         user.setActivationExpirationTime(LocalDateTime.now().plusMinutes(90));
         // Default user role when registering
         user.setRole(Role.USER);
         userRepository.save(user);
-        emailService.sendActivationTokenEmail(user.getActivationToken(),
-                user.getEmail(), user.getId());
+        emailService.sendActivationTokenEmail(user.getActivationToken(), user.getEmail());
         return new SignupResponseDto(user.getEmail(), user.getId());
     }
 
     @Transactional
     public boolean activateUserAccount(Long userId, String activationToken) {
         User user = userRepository.findById(userId).orElse(null);
-        if (user == null || !user.getActivationToken().equals(activationToken) ||
-                user.getActivationExpirationTime().isBefore(LocalDateTime.now())) {
+        var now = LocalDateTime.now();
+        if (user == null ||
+                !user.getActivationToken().equals(activationToken) ||
+                user.getActivationExpirationTime().isBefore(now)) {
             return false;
         }
-
         user.setEnabled(true);
         user.setActivationToken(null);
         user.setActivationExpirationTime(null);
         userRepository.save(user);
-
         return true;
     }
 
