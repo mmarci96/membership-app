@@ -31,6 +31,21 @@ export const SignupForm = () => {
         return null;
     };
 
+    const createSignup = async (formData: FormData) => {
+        const res = await fetch("/api/auth/sigup", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(formData),
+        });
+        if (!res.ok) {
+            console.log("Error, res not ok!", res);
+        }
+        const data = await res.json();
+        console.log("Signup success: ", data);
+    };
+
     const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
@@ -56,6 +71,16 @@ export const SignupForm = () => {
             return;
         }
         setErrors({});
+        fetch("/api/auth/signup", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        })
+            .then((res) => res.json())
+            .then((data) => console.log(data))
+            .catch((err) => console.error(err));
 
         setSubmitted(data);
     };
