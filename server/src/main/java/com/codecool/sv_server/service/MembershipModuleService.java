@@ -1,10 +1,10 @@
 package com.codecool.sv_server.service;
+
 import com.codecool.sv_server.entity.MembershipModule;
 import com.codecool.sv_server.repository.MembershipModuleRepository;
-import org.springframework.stereotype.Service;
-
 import java.util.List;
 import java.util.Optional;
+import org.springframework.stereotype.Service;
 
 @Service
 public class MembershipModuleService {

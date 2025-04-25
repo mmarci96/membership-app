@@ -24,8 +24,13 @@ public class UserDetailsService {
             return null;
         }
         return new UserDetailsDto(
-                u.getFirstName(), u.getLastName(), u.getPhoneNumber(),
-                u.getAddress(), u.getCity(), u.getCountry(), userId);
+                u.getFirstName(),
+                u.getLastName(),
+                u.getPhoneNumber(),
+                u.getAddress(),
+                u.getCity(),
+                u.getCountry(),
+                userId);
     }
 
     public UserDetailsDto setupUserDetails(UserDetailsDto userDetailsDto) {
