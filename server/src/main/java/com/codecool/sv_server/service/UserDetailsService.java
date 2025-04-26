@@ -2,6 +2,8 @@ package com.codecool.sv_server.service;
 
 import com.codecool.sv_server.dto.UserDetailsDto;
 import com.codecool.sv_server.entity.UserDetails;
+import com.codecool.sv_server.exception.ApiException;
+import com.codecool.sv_server.exception.ResourceNotFoundException;
 import com.codecool.sv_server.repository.UserDetailsRepository;
 import com.codecool.sv_server.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -13,7 +15,9 @@ public class UserDetailsService {
     private final UserRepository userRepository;
 
     @Autowired
-    public UserDetailsService(UserDetailsRepository userDetailsRepository, UserRepository userRepository) {
+    public UserDetailsService(
+            UserDetailsRepository userDetailsRepository,
+            UserRepository userRepository) {
         this.userDetailsRepository = userDetailsRepository;
         this.userRepository = userRepository;
     }
@@ -21,7 +25,7 @@ public class UserDetailsService {
     public UserDetailsDto getUserDetailsByUserId(long userId) {
         var u = userDetailsRepository.findByUserId(userId);
         if (u == null) {
-            return null;
+            throw new ResourceNotFoundException("user detail");
         }
         return new UserDetailsDto(
                 u.getFirstName(),
@@ -33,10 +37,10 @@ public class UserDetailsService {
                 userId);
     }
 
-    public UserDetailsDto setupUserDetails(UserDetailsDto userDetailsDto) {
+    public UserDetailsDto createUserDetails(UserDetailsDto userDetailsDto) {
         var u = userRepository.findById(userDetailsDto.userId());
-        if (u == null) {
-            return null;
+        if (u != null) {
+            throw new ApiException("User detail already exists", 403);
         }
         var userDetails = new UserDetails();
         userDetails.setUser(u);
@@ -49,5 +53,33 @@ public class UserDetailsService {
 
         userDetailsRepository.save(userDetails);
         return userDetailsDto;
+    }
+
+    public UserDetailsDto updateUserDetails(UserDetailsDto updateData, Long id) {
+        var existing = userDetailsRepository.findById(id);
+        if (existing.isEmpty()) {
+            throw new ResourceNotFoundException("user detail");
+        }
+        UserDetails details = existing.get();
+        details.setCity(updateData.city());
+        details.setFirstName(updateData.firstName());
+        details.setLastName(updateData.lastName());
+        details.setPhoneNumber(updateData.phoneNumber());
+        details.setAddress(updateData.address());
+        details.setCountry(updateData.country());
+
+        userDetailsRepository.save(details);
+        return new UserDetailsDto(
+                details.getFirstName(),
+                details.getLastName(),
+                details.getPhoneNumber(),
+                details.getAddress(),
+                details.getCity(),
+                details.getCountry(),
+                details.getId());
+    }
+
+    public void deleteUser(Long id) {
+        userDetailsRepository.deleteById(id);
     }
 }
