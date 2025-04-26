@@ -25,8 +25,9 @@ public class UserController {
     }
 
     @PostMapping("/account")
-    public ResponseEntity<UserDetailsDto> createUserDetails(@RequestBody UserDetailsDto userDetailsDto) {
-        return ResponseEntity.ok(userDetailsService.setupUserDetails(userDetailsDto));
+    public ResponseEntity<UserDetailsDto> createUserDetails(
+            @RequestBody UserDetailsDto userDetailsDto) {
+        return ResponseEntity.ok(userDetailsService.createUserDetails(userDetailsDto));
     }
 
 }
