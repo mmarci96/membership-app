@@ -34,13 +34,14 @@ public class UserDetailsService {
                 u.getAddress(),
                 u.getCity(),
                 u.getCountry(),
-                userId);
+                userId,
+                u.getZipCode());
     }
 
     public UserDetailsDto createUserDetails(UserDetailsDto userDetailsDto) {
         var u = userRepository.findById(userDetailsDto.userId());
-        if (u != null) {
-            throw new ApiException("User detail already exists", 403);
+        if (u == null) {
+            throw new ApiException("User does not exist!", 404);
         }
         var userDetails = new UserDetails();
         userDetails.setUser(u);
@@ -50,6 +51,7 @@ public class UserDetailsService {
         userDetails.setAddress(userDetailsDto.address());
         userDetails.setCity(userDetailsDto.city());
         userDetails.setCountry(userDetailsDto.country());
+        userDetails.setZipCode(userDetailsDto.zipCode());
 
         userDetailsRepository.save(userDetails);
         return userDetailsDto;
@@ -67,6 +69,7 @@ public class UserDetailsService {
         details.setPhoneNumber(updateData.phoneNumber());
         details.setAddress(updateData.address());
         details.setCountry(updateData.country());
+        details.setZipCode(updateData.zipCode());
 
         userDetailsRepository.save(details);
         return new UserDetailsDto(
@@ -76,7 +79,8 @@ public class UserDetailsService {
                 details.getAddress(),
                 details.getCity(),
                 details.getCountry(),
-                details.getId());
+                details.getId(),
+                details.getZipCode());
     }
 
     public void deleteUser(Long id) {
