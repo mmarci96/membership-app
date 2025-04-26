@@ -21,7 +21,6 @@ public class UserController {
     @GetMapping("/account/{id}")
     public ResponseEntity<UserDetailsDto> getUserDetails(
             @AuthenticationPrincipal Jwt jwt, @PathVariable long id) {
-
         long userId = jwt.getClaim("userId");
         var roleString = jwt.getClaimAsString("role");
         Role userRole = Role.valueOf(roleString);
@@ -57,7 +56,6 @@ public class UserController {
     public ResponseEntity<UserDetailsDto> updateUserDetails(
             @AuthenticationPrincipal Jwt jwt,
             @RequestBody UserDetailsDto userDetailsDto) {
-
         long id = userDetailsDto.userId();
         long userId = jwt.getClaim("userId");
         var roleString = jwt.getClaimAsString("role");
@@ -65,7 +63,6 @@ public class UserController {
         if (id != userId && userRole != Role.ADMIN) {
             throw new ApiException("Unauthorized request!", 403);
         }
-
         var result = userDetailsService.updateUserDetails(userDetailsDto, id);
         return ResponseEntity.ok(result);
     }
