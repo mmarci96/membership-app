@@ -2,15 +2,16 @@ package com.codecool.sv_server.controller;
 
 import com.codecool.sv_server.dto.LoginRequestDto;
 import com.codecool.sv_server.dto.LoginResponseDto;
+import com.codecool.sv_server.dto.SignupRequestDto;
 import com.codecool.sv_server.dto.TokenCreateDto;
 import com.codecool.sv_server.dto.VerifyCodeRequestDto;
-import com.codecool.sv_server.dto.SignupRequestDto;
 import com.codecool.sv_server.service.AuthService;
 import com.codecool.sv_server.service.TokenService;
+
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
@@ -33,14 +34,12 @@ public class AuthController {
             return ResponseEntity.status(401).body("Invalid email or password!");
         }
 
-        String token = tokenService.generateToken(loginRequestDto.email(),
-                data.role(), data.id());
+        String token = tokenService.generateToken(loginRequestDto.email(), data.role(), data.id());
         return ResponseEntity.ok(new LoginResponseDto(token, data.id()));
     }
 
     @PostMapping("/signup")
-    public ResponseEntity<?> signup(
-            @RequestBody SignupRequestDto signupRequestDto) {
+    public ResponseEntity<?> signup(@RequestBody SignupRequestDto signupRequestDto) {
         var res = userService.registerUser(signupRequestDto);
         if (res == null) {
             return ResponseEntity.badRequest().build();

@@ -75,6 +75,7 @@ public class AuthControllerIT extends BaseIntegrationTest {
 
         var signupRequest = new SignupRequestDto(
                 email,
+
                 "Another Nname",
                 "Password1");
         String reqJson = objectMapper.writeValueAsString(signupRequest);

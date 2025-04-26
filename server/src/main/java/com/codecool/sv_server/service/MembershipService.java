@@ -6,6 +6,7 @@ import com.codecool.sv_server.entity.SubscriptionStatus;
 import com.codecool.sv_server.entity.User;
 import com.codecool.sv_server.repository.MembershipRepository;
 import com.codecool.sv_server.repository.UserRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -17,7 +18,8 @@ public class MembershipService {
     private final UserRepository userRepository;
 
     @Autowired
-    public MembershipService(MembershipRepository membershipRepository, UserRepository userRepository) {
+    public MembershipService(
+            MembershipRepository membershipRepository, UserRepository userRepository) {
         this.membershipRepository = membershipRepository;
         this.userRepository = userRepository;
     }
@@ -31,10 +33,7 @@ public class MembershipService {
 
         membershipRepository.save(membership);
         return new MembershipStatusDto(
-                userId,
-                membership.getSubscriptionStatus(),
-                membership.getEndDate());
-
+                userId, membership.getSubscriptionStatus(), membership.getEndDate());
     }
 
     public MembershipStatusDto getMemberShipStatus(long userId) {
@@ -44,9 +43,7 @@ public class MembershipService {
             return null;
         }
         return new MembershipStatusDto(
-                userId,
-                membership.getSubscriptionStatus(),
-                membership.getEndDate());
+                userId, membership.getSubscriptionStatus(), membership.getEndDate());
     }
 
     public Membership findActiveMembershipByEmail(String email) {

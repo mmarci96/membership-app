@@ -3,6 +3,7 @@ package com.codecool.sv_server.entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.Pattern;
 import jakarta.validation.constraints.Size;
+
 import lombok.EqualsAndHashCode;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -17,8 +18,7 @@ import lombok.ToString;
 @ToString(exclude = "user")
 @EqualsAndHashCode(onlyExplicitlyIncluded = true)
 public class UserDetails {
-    @Id
-    private Long id;
+    @Id private Long id;
 
     @OneToOne
     @MapsId

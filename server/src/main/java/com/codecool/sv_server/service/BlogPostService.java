@@ -7,6 +7,7 @@ import com.codecool.sv_server.entity.BlogPost;
 import com.codecool.sv_server.exception.ApiException;
 import com.codecool.sv_server.exception.ResourceNotFoundException;
 import com.codecool.sv_server.repository.BlogPostRepository;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -24,20 +25,24 @@ public class BlogPostService {
 
     public Stream<BlogPostDto> getAllBlogPosts() {
         return blogPostRepository.findAll().stream()
-                .map(blogPost -> new BlogPostDto(
-                        blogPost.getId(),
-                        blogPost.getTitle(),
-                        blogPost.getContent(),
-                        blogPost.getCreatedAt()));
+                .map(
+                        blogPost ->
+                                new BlogPostDto(
+                                        blogPost.getId(),
+                                        blogPost.getTitle(),
+                                        blogPost.getContent(),
+                                        blogPost.getCreatedAt()));
     }
 
     public BlogPostDto getBlogPostById(Long id) {
         Optional<BlogPost> blogPost = blogPostRepository.findById(id);
-        return blogPost.map(post -> new BlogPostDto(
-                post.getId(),
-                post.getTitle(),
-                post.getContent(),
-                post.getCreatedAt()))
+        return blogPost.map(
+                        post ->
+                                new BlogPostDto(
+                                        post.getId(),
+                                        post.getTitle(),
+                                        post.getContent(),
+                                        post.getCreatedAt()))
                 .orElse(null);
     }
 
@@ -54,7 +59,8 @@ public class BlogPostService {
         blogPost.setTitle(title);
         blogPost.setContent(content);
         blogPostRepository.save(blogPost);
-        return new BlogPostDto(blogPost.getId(),
+        return new BlogPostDto(
+                blogPost.getId(),
                 blogPost.getTitle(),
                 blogPost.getContent(),
                 blogPost.getCreatedAt());
@@ -68,10 +74,7 @@ public class BlogPostService {
             post.setTitle(updateData.title());
             blogPostRepository.save(post);
             return new BlogPostDto(
-                    post.getId(),
-                    post.getTitle(),
-                    post.getContent(),
-                    post.getCreatedAt());
+                    post.getId(), post.getTitle(), post.getContent(), post.getCreatedAt());
         }
         return null;
     }

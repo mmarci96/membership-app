@@ -1,18 +1,17 @@
 package com.codecool.sv_server.controller;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+
+import com.codecool.sv_server.dto.UserDetailsDto;
+import com.fasterxml.jackson.databind.JsonNode;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.test.context.ActiveProfiles;
-
-import com.codecool.sv_server.dto.UserDetailsDto;
-import com.fasterxml.jackson.databind.JsonNode;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -32,11 +31,18 @@ public class UserControllerIT extends BaseIntegrationTest {
         var userDetailsDto = createTestUserDetailsDto(userId);
         var jsonData = objectMapper.writeValueAsString(userDetailsDto);
 
-        mockMvc.perform(post("/api/users/account")
-                .header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(jsonData))
+        mockMvc.perform(
+                        post("/api/users/account")
+                                .header("Authorization", "Bearer " + token)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(jsonData))
                 .andExpect(status().isOk());
+    }
+
+    public void test_requesting_userdetailById_without_auth() throws Exception {
+        long id = 1L;
+        String param = String.valueOf(id);
+        mockMvc.perform(get("/api/users/account/" + param)).andExpect(status().isForbidden());
     }
 
     private UserDetailsDto createTestUserDetailsDto(Long userId) {

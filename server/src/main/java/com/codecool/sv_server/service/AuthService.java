@@ -10,6 +10,7 @@ import com.codecool.sv_server.exception.ApiException;
 import com.codecool.sv_server.exception.ResourceNotFoundException;
 import com.codecool.sv_server.repository.UserRepository;
 import com.codecool.sv_server.utils.SignupRequestValidator;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
@@ -25,7 +26,8 @@ public class AuthService {
     private final EmailService emailService;
 
     @Autowired
-    public AuthService(UserRepository userRepository,
+    public AuthService(
+            UserRepository userRepository,
             PasswordEncoder passwordEncoder,
             EmailService emailService) {
         this.userRepository = userRepository;
@@ -55,8 +57,7 @@ public class AuthService {
         user.setName(signupRequestDto.name());
         user.setPassword(pwdEncoder.encode(signupRequestDto.password()));
         user.setEnabled(false);
-        var activationToken = UUID.randomUUID().toString()
-                .toUpperCase().substring(0, 6);
+        var activationToken = UUID.randomUUID().toString().toUpperCase().substring(0, 6);
         user.setActivationToken(activationToken);
         user.setActivationExpirationTime(LocalDateTime.now().plusMinutes(90));
         user.setRole(Role.USER);
