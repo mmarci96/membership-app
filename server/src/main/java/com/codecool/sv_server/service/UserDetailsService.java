@@ -6,6 +6,9 @@ import com.codecool.sv_server.exception.ApiException;
 import com.codecool.sv_server.exception.ResourceNotFoundException;
 import com.codecool.sv_server.repository.UserDetailsRepository;
 import com.codecool.sv_server.repository.UserRepository;
+
+import java.util.Optional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -58,7 +61,8 @@ public class UserDetailsService {
     }
 
     public UserDetailsDto updateUserDetails(UserDetailsDto updateData, Long id) {
-        var existing = userDetailsRepository.findById(id);
+        Optional<UserDetails> existing = userDetailsRepository.findById(id);
+        System.out.println("EXISTING: " + existing);
         if (existing.isEmpty()) {
             throw new ResourceNotFoundException("user detail");
         }

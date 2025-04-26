@@ -3,15 +3,11 @@ package com.codecool.sv_server.entity;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
-import com.codecool.sv_server.dto.UserDetailsDto;
-
 import jakarta.validation.ConstraintViolation;
 import jakarta.validation.Validation;
 import jakarta.validation.Validator;
 import jakarta.validation.ValidatorFactory;
-
 import java.util.Set;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class UserDetailsValidationTest {
@@ -26,7 +22,6 @@ public class UserDetailsValidationTest {
 
     @Test
     void shouldFailValidationForInvalidPhoneNumber() {
-
         var details = new UserDetails();
         details.setFirstName("John");
         details.setLastName("Doe");
