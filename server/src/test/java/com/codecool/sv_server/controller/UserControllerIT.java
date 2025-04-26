@@ -17,7 +17,6 @@ import org.springframework.test.context.ActiveProfiles;
 @ActiveProfiles("test")
 @AutoConfigureMockMvc
 public class UserControllerIT extends BaseIntegrationTest {
-
     @Test
     public void test_creating_user_details_with_valid_data() throws Exception {
         var email = "user_detail@happy.test";
@@ -31,29 +30,24 @@ public class UserControllerIT extends BaseIntegrationTest {
         var userDetailsDto = createTestUserDetailsDto(userId);
         var jsonData = objectMapper.writeValueAsString(userDetailsDto);
 
-        mockMvc.perform(
-                        post("/api/users/account")
-                                .header("Authorization", "Bearer " + token)
-                                .contentType(MediaType.APPLICATION_JSON)
-                                .content(jsonData))
-                .andExpect(status().isOk());
+        mockMvc
+            .perform(post("/api/users/account")
+                         .header("Authorization", "Bearer " + token)
+                         .contentType(MediaType.APPLICATION_JSON)
+                         .content(jsonData))
+            .andExpect(status().isOk());
     }
 
     public void test_requesting_userdetailById_without_auth() throws Exception {
         long id = 1L;
         String param = String.valueOf(id);
-        mockMvc.perform(get("/api/users/account/" + param)).andExpect(status().isForbidden());
+        mockMvc.perform(get("/api/users/account/" + param))
+            .andExpect(status().isForbidden());
     }
 
     private UserDetailsDto createTestUserDetailsDto(Long userId) {
-        return new UserDetailsDto(
-                "Test",
-                "User",
-                "+1234567890",
-                "123 Test Street",
-                "Testville",
-                "TC",
-                userId,
-                "12345");
+        return new UserDetailsDto("Test", "User", "+1234567890",
+                                  "123 Test Street", "Testville", "TC", userId,
+                                  "12345");
     }
 }
