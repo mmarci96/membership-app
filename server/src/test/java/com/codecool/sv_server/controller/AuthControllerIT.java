@@ -22,7 +22,6 @@ import com.fasterxml.jackson.databind.JsonNode;
 @AutoConfigureMockMvc
 @ActiveProfiles("test")
 public class AuthControllerIT extends BaseIntegrationTest {
-
     @Test
     void test_valid_signup_request() throws Exception {
         registerUser("test@mail.com", "Test Name", "Password1");
@@ -30,10 +29,11 @@ public class AuthControllerIT extends BaseIntegrationTest {
 
     @Test
     void test_invalid_signup_request() throws Exception {
-        mockMvc.perform(post("/api/auth/signup")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(""))
-                .andExpect(status().isBadRequest());
+        mockMvc
+            .perform(post("/api/auth/signup")
+                         .contentType(MediaType.APPLICATION_JSON)
+                         .content(""))
+            .andExpect(status().isBadRequest());
     }
 
     @Test
@@ -60,12 +60,13 @@ public class AuthControllerIT extends BaseIntegrationTest {
         var verifyCode = new VerifyCodeRequestDto(user.getActivationToken());
         String codeJson = objectMapper.writeValueAsString(verifyCode);
 
-        mockMvc.perform(post("/api/auth/activate")
-                .header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(codeJson))
-                .andExpect(status().isOk())
-                .andExpect(content().string("Account activated successfully!"));
+        mockMvc
+            .perform(post("/api/auth/activate")
+                         .header("Authorization", "Bearer " + token)
+                         .contentType(MediaType.APPLICATION_JSON)
+                         .content(codeJson))
+            .andExpect(status().isOk())
+            .andExpect(content().string("Account activated successfully!"));
     }
 
     @Test
@@ -73,29 +74,30 @@ public class AuthControllerIT extends BaseIntegrationTest {
         String email = "duplicate@mail.com";
         registerUser(email, "Test Duplicate", "Password1");
 
-        var signupRequest = new SignupRequestDto(
-                email,
+        var signupRequest = new SignupRequestDto(email,
 
-                "Another Nname",
-                "Password1");
+                                                 "Another Nname", "Password1");
         String reqJson = objectMapper.writeValueAsString(signupRequest);
-        mockMvc.perform(post("/api/auth/signup")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(reqJson))
-                .andExpect(status().isConflict())
-                .andExpect(jsonPath("$.error").value("Email already taken!"));
+        mockMvc
+            .perform(post("/api/auth/signup")
+                         .contentType(MediaType.APPLICATION_JSON)
+                         .content(reqJson))
+            .andExpect(status().isConflict())
+            .andExpect(jsonPath("$.error").value("Email already taken!"));
     }
 
     @Test
-    void test_signup_with_invalid_email_format_returns_bad_request() throws Exception {
+    void test_signup_with_invalid_email_format_returns_bad_request()
+        throws Exception {
         var req = new SignupRequestDto("bad-email", "Name", "Password1");
         String reqJson = objectMapper.writeValueAsString(req);
 
-        mockMvc.perform(post("/api/auth/signup")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(reqJson))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("Invalid email format"));
+        mockMvc
+            .perform(post("/api/auth/signup")
+                         .contentType(MediaType.APPLICATION_JSON)
+                         .content(reqJson))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.error").value("Invalid email format"));
     }
 
     @Test
@@ -103,26 +105,30 @@ public class AuthControllerIT extends BaseIntegrationTest {
         var req = new SignupRequestDto("weak@mail.com", "Name", "abc");
         String reqJson = objectMapper.writeValueAsString(req);
 
-        mockMvc.perform(post("/api/auth/signup")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(reqJson))
-                .andExpect(status().isBadRequest())
-                .andExpect(jsonPath("$.error").value("Password must be at least 6 characters"));
+        mockMvc
+            .perform(post("/api/auth/signup")
+                         .contentType(MediaType.APPLICATION_JSON)
+                         .content(reqJson))
+            .andExpect(status().isBadRequest())
+            .andExpect(jsonPath("$.error").value(
+                "Password must be at least 6 characters"));
     }
 
     @Test
-    void test_login_with_wrong_password_returns_unauthorized() throws Exception {
+    void test_login_with_wrong_password_returns_unauthorized()
+        throws Exception {
         String email = "loginfail@mail.com";
         registerUser(email, "Fail Name", "Correct123");
 
         var login = new LoginRequestDto(email, "Wrong123");
         String reqJson = objectMapper.writeValueAsString(login);
 
-        mockMvc.perform(post("/api/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(reqJson))
-                .andExpect(status().isUnauthorized())
-                .andExpect(jsonPath("$.error").value("Invalid email or password"));
+        mockMvc
+            .perform(post("/api/auth/login")
+                         .contentType(MediaType.APPLICATION_JSON)
+                         .content(reqJson))
+            .andExpect(status().isUnauthorized())
+            .andExpect(jsonPath("$.error").value("Invalid email or password"));
     }
 
     @Test
@@ -130,11 +136,12 @@ public class AuthControllerIT extends BaseIntegrationTest {
         var login = new LoginRequestDto("doesnotexist@mail.com", "Password1");
         String reqJson = objectMapper.writeValueAsString(login);
 
-        mockMvc.perform(post("/api/auth/login")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(reqJson))
-                .andExpect(status().isNotFound())
-                .andExpect(jsonPath("$.error").value("Resource not found: user"));
+        mockMvc
+            .perform(post("/api/auth/login")
+                         .contentType(MediaType.APPLICATION_JSON)
+                         .content(reqJson))
+            .andExpect(status().isNotFound())
+            .andExpect(jsonPath("$.error").value("Resource not found: user"));
     }
 
     @Test
@@ -155,11 +162,12 @@ public class AuthControllerIT extends BaseIntegrationTest {
         var verifyCode = new VerifyCodeRequestDto(user.getActivationToken());
         String codeJson = objectMapper.writeValueAsString(verifyCode);
 
-        mockMvc.perform(post("/api/auth/activate")
-                .header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(codeJson))
-                .andExpect(status().is4xxClientError())
-                .andExpect(jsonPath("$.error").value("Activation code expired!"));
+        mockMvc
+            .perform(post("/api/auth/activate")
+                         .header("Authorization", "Bearer " + token)
+                         .contentType(MediaType.APPLICATION_JSON)
+                         .content(codeJson))
+            .andExpect(status().is4xxClientError())
+            .andExpect(jsonPath("$.error").value("Activation code expired!"));
     }
 }
