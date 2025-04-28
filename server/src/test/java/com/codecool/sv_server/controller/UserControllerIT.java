@@ -38,11 +38,12 @@ public class UserControllerIT extends BaseIntegrationTest {
             .andExpect(status().isOk());
     }
 
+    @Test
     public void test_requesting_userdetailById_without_auth() throws Exception {
         long id = 1L;
         String param = String.valueOf(id);
         mockMvc.perform(get("/api/users/account/" + param))
-            .andExpect(status().isForbidden());
+            .andExpect(status().isUnauthorized());
     }
 
     private UserDetailsDto createTestUserDetailsDto(Long userId) {
