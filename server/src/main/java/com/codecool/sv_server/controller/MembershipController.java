@@ -3,7 +3,6 @@ package com.codecool.sv_server.controller;
 import com.codecool.sv_server.dto.MembershipPackageDTO;
 import com.codecool.sv_server.dto.MembershipPackageNameDto;
 import com.codecool.sv_server.dto.MembershipStatusDto;
-import com.codecool.sv_server.dto.SubscriptionReqDto;
 import com.codecool.sv_server.entity.Membership;
 import com.codecool.sv_server.service.MembershipPackageService;
 import com.codecool.sv_server.service.MembershipService;
@@ -62,15 +61,5 @@ public class MembershipController {
             return ResponseEntity.notFound().build();
         }
         return ResponseEntity.ok(status);
-    }
-
-    @PostMapping
-    public ResponseEntity<MembershipStatusDto> createMembershipStatus(
-            @RequestBody SubscriptionReqDto subscriptionReqDto) {
-        if (subscriptionReqDto.paymentStatus()) {
-            var status = membershipService.startMembership(subscriptionReqDto.userId());
-            return ResponseEntity.ok(status);
-        }
-        return ResponseEntity.status(404).build();
     }
 }
