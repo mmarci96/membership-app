@@ -11,6 +11,7 @@ import com.codecool.sv_server.entity.Role;
 import com.codecool.sv_server.entity.User;
 import com.codecool.sv_server.repository.UserRepository;
 import com.codecool.sv_server.utils.SignupRequestValidator;
+
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
@@ -36,7 +37,7 @@ public class AuthServiceTest {
         var user = new User();
         user.setId(1L);
         user.setPassword("hashed");
-        user.setRole(Role.USER);
+        user.setRole(Role.ROLE_USER);
 
         when(userRepository.findByEmail(email)).thenReturn(user);
         when(passwordEncoder.matches(password, "hashed")).thenReturn(true);
@@ -45,7 +46,7 @@ public class AuthServiceTest {
         var result = authService.validateLogin(loginRequest);
 
         assertEquals(user.getId(), result.id());
-        assertEquals(Role.USER, result.role());
+        assertEquals(Role.ROLE_USER, result.role());
     }
 
     @Test
@@ -55,16 +56,19 @@ public class AuthServiceTest {
         when(userRepository.findByEmail("test@mail.com")).thenReturn(null);
         when(passwordEncoder.encode("Password1")).thenReturn("hashedPassword");
 
-        when(userRepository.save(any(User.class))).thenAnswer(invocation -> {
-            User user = invocation.getArgument(0);
-            user.setId(1L);
-            return user;
-        });
+        when(userRepository.save(any(User.class)))
+                .thenAnswer(
+                        invocation -> {
+                            User user = invocation.getArgument(0);
+                            user.setId(1L);
+                            return user;
+                        });
 
         try (MockedStatic<SignupRequestValidator> mockValidator =
-                 mockStatic(SignupRequestValidator.class)) {
-            mockValidator.when(() -> SignupRequestValidator.validate(signupRequest))
-                .thenCallRealMethod();
+                mockStatic(SignupRequestValidator.class)) {
+            mockValidator
+                    .when(() -> SignupRequestValidator.validate(signupRequest))
+                    .thenCallRealMethod();
             var response = authService.registerUser(signupRequest);
 
             assertEquals("test@mail.com", response.email());
@@ -78,8 +82,10 @@ public class AuthServiceTest {
     void givenEmptyEmail_whenSignup_thenThrowsException() {
         var signupRequest = new SignupRequestDto("", "name", "Password1");
 
-        var exception = assertThrows(IllegalArgumentException.class,
-                                     () -> authService.registerUser(signupRequest));
+        var exception =
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> authService.registerUser(signupRequest));
         assertEquals("Email must not be empty", exception.getMessage());
     }
 
@@ -87,8 +93,10 @@ public class AuthServiceTest {
     void givenInvalidEmail_whenSignup_thenThrowsException() {
         var signupRequest = new SignupRequestDto("notanemail.com", "name", "Password1");
 
-        var exception = assertThrows(IllegalArgumentException.class,
-                                     () -> authService.registerUser(signupRequest));
+        var exception =
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> authService.registerUser(signupRequest));
         assertEquals("Invalid email format", exception.getMessage());
     }
 
@@ -96,8 +104,10 @@ public class AuthServiceTest {
     void givenShortPassword_whenSignup_thenThrowsException() {
         var signupRequest = new SignupRequestDto("test@mail.com", "name", "Ab1");
 
-        var exception = assertThrows(IllegalArgumentException.class,
-                                     () -> authService.registerUser(signupRequest));
+        var exception =
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> authService.registerUser(signupRequest));
         assertEquals("Password must be at least 6 characters", exception.getMessage());
     }
 
@@ -105,8 +115,10 @@ public class AuthServiceTest {
     void givenPasswordWithoutDigit_whenSignup_thenThrowsException() {
         var signupRequest = new SignupRequestDto("test@mail.com", "name", "Password");
 
-        var exception = assertThrows(IllegalArgumentException.class,
-                                     () -> authService.registerUser(signupRequest));
+        var exception =
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> authService.registerUser(signupRequest));
         assertEquals("Password must contain at least one digit", exception.getMessage());
     }
 
@@ -114,8 +126,10 @@ public class AuthServiceTest {
     void givenPasswordWithoutUppercase_whenSignup_thenThrowsException() {
         var signupRequest = new SignupRequestDto("test@mail.com", "name", "password1");
 
-        var exception = assertThrows(IllegalArgumentException.class,
-                                     () -> authService.registerUser(signupRequest));
+        var exception =
+                assertThrows(
+                        IllegalArgumentException.class,
+                        () -> authService.registerUser(signupRequest));
         assertEquals("Password must contain at least one uppercase letter", exception.getMessage());
     }
 }

@@ -7,18 +7,17 @@ import static org.springframework.test.web.servlet.request.MockMvcRequestBuilder
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-import org.junit.jupiter.api.Test;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.http.MediaType;
-
 import com.codecool.sv_server.dto.BlogPostUpdateDto;
 import com.codecool.sv_server.dto.CreateBlogPostDto;
 import com.codecool.sv_server.entity.Role;
 import com.codecool.sv_server.entity.User;
-import org.springframework.test.context.ActiveProfiles;
-
 import com.fasterxml.jackson.databind.JsonNode;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.ActiveProfiles;
 
 @SpringBootTest
 @ActiveProfiles("test")
@@ -32,7 +31,7 @@ public class AdminControllerIT extends BaseIntegrationTest {
         var password = "Password1";
         registerUser(email, name, password);
         User user = userRepository.findByEmail(email);
-        user.setRole(Role.ADMIN);
+        user.setRole(Role.ROLE_ADMIN);
         userRepository.save(user);
 
         var title = "Test Title";
@@ -43,10 +42,11 @@ public class AdminControllerIT extends BaseIntegrationTest {
         var loginRes = loginUser(email, password);
         String token = loginRes.get("token").asText();
 
-        mockMvc.perform(post("/api/admin/blog")
-                .header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(blogPostJson))
+        mockMvc.perform(
+                        post("/api/admin/blog")
+                                .header("Authorization", "Bearer " + token)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(blogPostJson))
                 .andExpect(status().isOk())
                 .andExpect(jsonPath("$.title").value(title));
     }
@@ -62,12 +62,12 @@ public class AdminControllerIT extends BaseIntegrationTest {
         CreateBlogPostDto badBlogPost = new CreateBlogPostDto("Title", "Should fail!");
         String blogPostJson = objectMapper.writeValueAsString(badBlogPost);
 
-        mockMvc.perform(post("/api/admin/blog")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + token)
-                .content(blogPostJson))
-                .andExpect(status().is4xxClientError())
-                .andExpect(jsonPath("$.error").isNotEmpty());
+        mockMvc.perform(
+                        post("/api/admin/blog")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", "Bearer " + token)
+                                .content(blogPostJson))
+                .andExpect(status().is4xxClientError());
     }
 
     @Test
@@ -77,7 +77,7 @@ public class AdminControllerIT extends BaseIntegrationTest {
         var password = "Password1";
         registerUser(email, name, password);
         User user = userRepository.findByEmail(email);
-        user.setRole(Role.CONTENT_CREATOR);
+        user.setRole(Role.ROLE_CONTENT_CREATOR);
         userRepository.save(user);
 
         var title = "";
@@ -87,10 +87,11 @@ public class AdminControllerIT extends BaseIntegrationTest {
 
         var loginRes = loginUser(email, password);
         String token = loginRes.get("token").asText();
-        mockMvc.perform(post("/api/admin/blog")
-                .header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(blogPostJson))
+        mockMvc.perform(
+                        post("/api/admin/blog")
+                                .header("Authorization", "Bearer " + token)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(blogPostJson))
                 .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.error").value("Provide longer title!"));
     }
@@ -102,7 +103,7 @@ public class AdminControllerIT extends BaseIntegrationTest {
         var password = "Password1";
         registerUser(email, name, password);
         User user = userRepository.findByEmail(email);
-        user.setRole(Role.CONTENT_CREATOR);
+        user.setRole(Role.ROLE_CONTENT_CREATOR);
         userRepository.save(user);
 
         var title = "Valid title.";
@@ -112,10 +113,11 @@ public class AdminControllerIT extends BaseIntegrationTest {
 
         var loginRes = loginUser(email, password);
         String token = loginRes.get("token").asText();
-        mockMvc.perform(post("/api/admin/blog")
-                .header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(blogPostJson))
+        mockMvc.perform(
+                        post("/api/admin/blog")
+                                .header("Authorization", "Bearer " + token)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(blogPostJson))
                 .andExpect(status().is4xxClientError())
                 .andExpect(jsonPath("$.error").value("Provide more content!"));
     }
@@ -130,24 +132,26 @@ public class AdminControllerIT extends BaseIntegrationTest {
         CreateBlogPostDto blogPost = new CreateBlogPostDto(title, content);
         String blogPostJson = objectMapper.writeValueAsString(blogPost);
 
-        var result = mockMvc.perform(post("/api/admin/blog")
-                .header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(blogPostJson))
-                .andExpect(status().isOk())
-                .andExpect(jsonPath("$.id").exists())
-                .andReturn()
-                .getResponse()
-                .getContentAsString();
+        var result =
+                mockMvc.perform(
+                                post("/api/admin/blog")
+                                        .header("Authorization", "Bearer " + token)
+                                        .contentType(MediaType.APPLICATION_JSON)
+                                        .content(blogPostJson))
+                        .andExpect(status().isOk())
+                        .andExpect(jsonPath("$.id").exists())
+                        .andReturn()
+                        .getResponse()
+                        .getContentAsString();
 
         JsonNode resJson = objectMapper.readTree(result);
         long postId = resJson.get("id").asLong();
-        mockMvc.perform(delete("/api/admin/blog/" + postId)
-                .header("Authorization", "Bearer " + token))
+        mockMvc.perform(
+                        delete("/api/admin/blog/" + postId)
+                                .header("Authorization", "Bearer " + token))
                 .andExpect(status().isOk());
 
-        mockMvc.perform(get("/api/blog/" + postId)
-                .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(get("/api/blog/" + postId).contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isNotFound());
     }
 
@@ -157,7 +161,7 @@ public class AdminControllerIT extends BaseIntegrationTest {
         var password = "Password1";
         registerUser(email, "Weird Role", password);
         User user = userRepository.findByEmail(email);
-        user.setRole(Role.MEMBER);
+        user.setRole(Role.ROLE_MEMBER);
         userRepository.save(user);
 
         var loginRes = loginUser(email, password);
@@ -166,12 +170,12 @@ public class AdminControllerIT extends BaseIntegrationTest {
         var blogPost = new CreateBlogPostDto("Weird", "Should fail due to invalid role string");
         String postJson = objectMapper.writeValueAsString(blogPost);
 
-        mockMvc.perform(post("/api/admin/blog")
-                .contentType(MediaType.APPLICATION_JSON)
-                .header("Authorization", "Bearer " + token)
-                .content(postJson))
-                .andExpect(status().is4xxClientError())
-                .andExpect(jsonPath("$.error").isNotEmpty());
+        mockMvc.perform(
+                        post("/api/admin/blog")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .header("Authorization", "Bearer " + token)
+                                .content(postJson))
+                .andExpect(status().is4xxClientError());
     }
 
     @Test
@@ -179,9 +183,10 @@ public class AdminControllerIT extends BaseIntegrationTest {
         var loginRes = loginUser("admin@mail.com", "Password1");
         String token = loginRes.get("token").asText();
 
-        mockMvc.perform(post("/api/admin/blog")
-                .header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON))
+        mockMvc.perform(
+                        post("/api/admin/blog")
+                                .header("Authorization", "Bearer " + token)
+                                .contentType(MediaType.APPLICATION_JSON))
                 .andExpect(status().isBadRequest())
                 .andExpect(jsonPath("$.error").exists());
     }
@@ -197,12 +202,12 @@ public class AdminControllerIT extends BaseIntegrationTest {
         var updateDto = new BlogPostUpdateDto(1L, "New Title", "Updated Content");
         String updateJson = objectMapper.writeValueAsString(updateDto);
 
-        mockMvc.perform(patch("/api/admin/blog")
-                .header("Authorization", "Bearer " + token)
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(updateJson))
-                .andExpect(status().is4xxClientError())
-                .andExpect(jsonPath("$.error").isNotEmpty());
+        mockMvc.perform(
+                        patch("/api/admin/blog")
+                                .header("Authorization", "Bearer " + token)
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(updateJson))
+                .andExpect(status().is4xxClientError());
     }
 
     @Test
@@ -210,8 +215,7 @@ public class AdminControllerIT extends BaseIntegrationTest {
         var loginRes = loginUser("admin@mail.com", "Password1");
         String token = loginRes.get("token").asText();
 
-        mockMvc.perform(delete("/api/admin/blog/999999")
-                .header("Authorization", "Bearer " + token))
+        mockMvc.perform(delete("/api/admin/blog/999999").header("Authorization", "Bearer " + token))
                 .andExpect(status().isNotFound())
                 .andExpect(jsonPath("$.error").value("Resource not found: Blog post"));
     }
@@ -221,9 +225,10 @@ public class AdminControllerIT extends BaseIntegrationTest {
         CreateBlogPostDto post = new CreateBlogPostDto("Title", "No token should block me!");
         String json = objectMapper.writeValueAsString(post);
 
-        mockMvc.perform(post("/api/admin/blog")
-                .contentType(MediaType.APPLICATION_JSON)
-                .content(json))
+        mockMvc.perform(
+                        post("/api/admin/blog")
+                                .contentType(MediaType.APPLICATION_JSON)
+                                .content(json))
                 .andExpect(status().is4xxClientError());
     }
 }

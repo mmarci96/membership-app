@@ -52,7 +52,7 @@ public class AuthController {
             @RequestBody VerifyCodeRequestDto verifyCodeRequestDto,
             @AuthenticationPrincipal Jwt jwt) {
         var userId = jwt.getClaimAsString("userId");
-        long id = Long.parseLong(userId);
+        Long id = Long.parseLong(userId);
         var code = verifyCodeRequestDto.code();
         userService.activateUserAccount(id, code);
         return ResponseEntity.ok("Account activated successfully!");

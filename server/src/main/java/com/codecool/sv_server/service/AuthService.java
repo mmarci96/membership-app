@@ -60,7 +60,7 @@ public class AuthService {
         var activationToken = UUID.randomUUID().toString().toUpperCase().substring(0, 6);
         user.setActivationToken(activationToken);
         user.setActivationExpirationTime(LocalDateTime.now().plusMinutes(90));
-        user.setRole(Role.USER);
+        user.setRole(Role.ROLE_USER);
         userRepository.save(user);
         var code = user.getActivationToken();
         var email = user.getEmail();
