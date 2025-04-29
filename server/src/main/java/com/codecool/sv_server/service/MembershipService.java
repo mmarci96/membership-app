@@ -1,9 +1,12 @@
 package com.codecool.sv_server.service;
 
 import com.codecool.sv_server.dto.MembershipStatusDto;
+import com.codecool.sv_server.dto.SubscriptionReqDto;
 import com.codecool.sv_server.entity.Membership;
 import com.codecool.sv_server.entity.SubscriptionStatus;
 import com.codecool.sv_server.entity.User;
+import com.codecool.sv_server.exception.ApiException;
+import com.codecool.sv_server.exception.ResourceNotFoundException;
 import com.codecool.sv_server.repository.MembershipRepository;
 import com.codecool.sv_server.repository.UserRepository;
 
@@ -24,26 +27,36 @@ public class MembershipService {
         this.userRepository = userRepository;
     }
 
-    public MembershipStatusDto startMembership(long userId) {
-        User u = userRepository.findById(userId);
+    public MembershipStatusDto startMembership(SubscriptionReqDto subRequestDto) {
+        if(!subRequestDto.paymentStatus()){
+            throw new ApiException("Payment unsuccessful", 400);
+        }
+        var userId = subRequestDto.userId();
+        var existing = membershipRepository.findByUserId(userId);
+        if (existing != null) {
+            throw new ApiException("Already started membership", 400);
+        }
+        User user = userRepository.findById(userId);
         Membership membership = new Membership();
-        membership.setUser(u);
+        membership.setUser(user);
         membership.setSubscriptionStatus(SubscriptionStatus.ACTIVE);
         membership.setEndDate(LocalDate.now().plusMonths(1));
 
         membershipRepository.save(membership);
-        return new MembershipStatusDto(
-                userId, membership.getSubscriptionStatus(), membership.getEndDate());
+        var subStatus = membership.getSubscriptionStatus();
+        var endDate = membership.getEndDate();
+        return new MembershipStatusDto(userId, subStatus, endDate);
     }
 
     public MembershipStatusDto getMemberShipStatus(long userId) {
         User user = userRepository.findById(userId);
         Membership membership = user.getMembership();
         if (membership == null) {
-            return null;
+            throw new ResourceNotFoundException("membership");
         }
-        return new MembershipStatusDto(
-                userId, membership.getSubscriptionStatus(), membership.getEndDate());
+        var subStatus = membership.getSubscriptionStatus();
+        var endDate = membership.getEndDate();
+        return new MembershipStatusDto(userId, subStatus, endDate);
     }
 
     public Membership findActiveMembershipByEmail(String email) {
