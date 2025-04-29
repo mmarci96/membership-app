@@ -6,9 +6,11 @@ import com.nimbusds.jose.jwk.RSAKey;
 import com.nimbusds.jose.jwk.source.ImmutableJWKSet;
 import com.nimbusds.jose.jwk.source.JWKSource;
 import com.nimbusds.jose.proc.SecurityContext;
+
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.boot.CommandLineRunner;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpMethod;
 import org.springframework.security.config.Customizer;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
@@ -21,12 +23,12 @@ import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.security.oauth2.jwt.JwtEncoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtDecoder;
 import org.springframework.security.oauth2.jwt.NimbusJwtEncoder;
+import org.springframework.security.oauth2.server.resource.authentication.JwtAuthenticationConverter;
+import org.springframework.security.oauth2.server.resource.authentication.JwtGrantedAuthoritiesConverter;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.web.cors.CorsConfiguration;
 import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
-
-import org.springframework.boot.CommandLineRunner;
 import org.springframework.web.servlet.mvc.method.annotation.RequestMappingHandlerMapping;
 
 @Configuration
@@ -39,31 +41,36 @@ public class SecurityConfiguration {
     }
 
     @Bean
-    public SecurityFilterChain securityFilterChain(HttpSecurity http)
-        throws Exception {
+    public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         return http.csrf(AbstractHttpConfigurer::disable)
-            .authorizeHttpRequests(request
-                                   -> request.requestMatchers("/api/auth/*")
-                                          .permitAll()
-                                          .requestMatchers("/api/blog/*")
-                                          .permitAll()
-                                          .requestMatchers("/api/stripe/*")
-                                          .permitAll()
-                                          .requestMatchers("/hello")
-                                          .permitAll()
-                                          .requestMatchers("/health")
-                                          .permitAll()
-                                          .requestMatchers("/ping")
-                                          .permitAll()
-                                          .anyRequest()
-                                          .authenticated())
-            .oauth2ResourceServer(
-                oauth2 -> oauth2.jwt(Customizer.withDefaults()))
-            .sessionManagement(session
-                               -> session.sessionCreationPolicy(
-                                   SessionCreationPolicy.STATELESS))
-            .httpBasic(Customizer.withDefaults())
-            .build();
+                .authorizeHttpRequests(
+                        request ->
+                                request.requestMatchers("/api/auth/*")
+                                        .permitAll()
+                                        .requestMatchers("/api/blog/*")
+                                        .permitAll()
+                                        .requestMatchers("/api/stripe/*")
+                                        .permitAll()
+                                        .requestMatchers("/api/admin/*")
+                                        .hasAnyRole("ADMIN", "CONTENT_CREATOR")
+                                        .requestMatchers("/hello")
+                                        .permitAll()
+                                        .requestMatchers("/health")
+                                        .permitAll()
+                                        .requestMatchers("/ping")
+                                        .permitAll()
+                                        .anyRequest()
+                                        .authenticated())
+                .oauth2ResourceServer(
+                        oauth2 ->
+                                oauth2.jwt(
+                                        jwt ->
+                                                jwt.jwtAuthenticationConverter(
+                                                        jwtAuthenticationConverter())))
+                .sessionManagement(
+                        session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+                .httpBasic(Customizer.withDefaults())
+                .build();
     }
 
     @Bean
@@ -73,11 +80,8 @@ public class SecurityConfiguration {
 
     @Bean
     JwtEncoder jwtEncoder() {
-        JWK jwk = new RSAKey.Builder(rsaKeys.publicKey())
-                      .privateKey(rsaKeys.privateKey())
-                      .build();
-        JWKSource<SecurityContext> jwkSource =
-            new ImmutableJWKSet<>(new JWKSet(jwk));
+        JWK jwk = new RSAKey.Builder(rsaKeys.publicKey()).privateKey(rsaKeys.privateKey()).build();
+        JWKSource<SecurityContext> jwkSource = new ImmutableJWKSet<>(new JWKSet(jwk));
         return new NimbusJwtEncoder(jwkSource);
     }
 
@@ -99,40 +103,50 @@ public class SecurityConfiguration {
     }
 
     @Bean
+    public JwtAuthenticationConverter jwtAuthenticationConverter() {
+        var grantedAuthoritiesConverter = new JwtGrantedAuthoritiesConverter();
+        grantedAuthoritiesConverter.setAuthoritiesClaimName("authorities");
+        grantedAuthoritiesConverter.setAuthorityPrefix("");
+
+        var authConverter = new JwtAuthenticationConverter();
+        authConverter.setJwtGrantedAuthoritiesConverter(grantedAuthoritiesConverter);
+        return authConverter;
+    }
+
+    @Bean
     public PasswordEncoder passwordEncoder() {
         return new BCryptPasswordEncoder();
     }
 
     @Bean
-    public CommandLineRunner logEndpoints(@Qualifier(
-        "requestMappingHandlerMapping") RequestMappingHandlerMapping mapping) {
+    public CommandLineRunner logEndpoints(
+            @Qualifier("requestMappingHandlerMapping") RequestMappingHandlerMapping mapping) {
         return args -> {
-            System.out.println(
-                "+-----------+-------------------------------------+");
+            System.out.println("+-----------+-------------------------------------+");
             System.out.printf("| %-10s| %-36s|%n", "Method", "Endpoint");
-            System.out.println(
-                "+-----------+-------------------------------------+");
+            System.out.println("+-----------+-------------------------------------+");
 
-            mapping.getHandlerMethods().forEach((requestMappingInfo,
-                                                 handlerMethod) -> {
-                var methods =
-                    requestMappingInfo.getMethodsCondition().getMethods();
-                var patterns =
-                    requestMappingInfo.getPathPatternsCondition().getPatterns();
+            mapping.getHandlerMethods()
+                    .forEach(
+                            (requestMappingInfo, handlerMethod) -> {
+                                var methods = requestMappingInfo.getMethodsCondition().getMethods();
+                                var patterns =
+                                        requestMappingInfo.getPathPatternsCondition().getPatterns();
 
-                String methodStr = methods.isEmpty()
-                    ? "ANY"
-                    : methods.stream()
-                          .map(Enum::name)
-                          .reduce((a, b) -> a + "," + b)
-                          .orElse("ANY");
+                                String methodStr =
+                                        methods.isEmpty()
+                                                ? "ANY"
+                                                : methods.stream()
+                                                        .map(Enum::name)
+                                                        .reduce((a, b) -> a + "," + b)
+                                                        .orElse("ANY");
 
-                for (var pattern : patterns) {
-                    System.out.printf("| %-10s| %-36s|%n", methodStr, pattern);
-                    System.out.println(
-                        "+-----------+-------------------------------------+");
-                }
-            });
+                                for (var pattern : patterns) {
+                                    System.out.printf("| %-10s| %-36s|%n", methodStr, pattern);
+                                    System.out.println(
+                                            "+-----------+-------------------------------------+");
+                                }
+                            });
         };
     }
 }

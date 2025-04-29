@@ -1,9 +1,9 @@
 package com.codecool.sv_server.controller;
 
 import com.codecool.sv_server.dto.UserDetailsDto;
-import com.codecool.sv_server.entity.Role;
 import com.codecool.sv_server.exception.ApiException;
 import com.codecool.sv_server.service.UserDetailsService;
+
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -20,11 +20,9 @@ public class UserController {
 
     @GetMapping("/account/{id}")
     public ResponseEntity<UserDetailsDto> getUserDetails(
-        @AuthenticationPrincipal Jwt jwt, @PathVariable long id) {
+            @AuthenticationPrincipal Jwt jwt, @PathVariable long id) {
         long userId = jwt.getClaim("userId");
-        var roleString = jwt.getClaimAsString("role");
-        Role userRole = Role.valueOf(roleString);
-        if (id != userId && userRole != Role.ADMIN) {
+        if (id != userId) {
             throw new ApiException("Unauthorized request!", 403);
         }
         var res = userDetailsService.getUserDetailsByUserId(id);
@@ -33,20 +31,16 @@ public class UserController {
 
     @PostMapping("/account")
     public ResponseEntity<UserDetailsDto> createUserDetails(
-        @RequestBody UserDetailsDto userDetailsDto) {
-        return ResponseEntity.ok(
-            userDetailsService.createUserDetails(userDetailsDto));
+            @RequestBody UserDetailsDto userDetailsDto) {
+        return ResponseEntity.ok(userDetailsService.createUserDetails(userDetailsDto));
     }
 
     @DeleteMapping("/account/{id}")
     public ResponseEntity<String> deleteUserDetails(
-        @AuthenticationPrincipal Jwt jwt,
-        @RequestBody UserDetailsDto userDetailsDto) {
+            @AuthenticationPrincipal Jwt jwt, @RequestBody UserDetailsDto userDetailsDto) {
         long id = userDetailsDto.userId();
         long userId = jwt.getClaim("userId");
-        var roleString = jwt.getClaimAsString("role");
-        Role userRole = Role.valueOf(roleString);
-        if (id != userId && userRole != Role.ADMIN) {
+        if (id != userId) {
             throw new ApiException("Unauthorized request!", 403);
         }
         userDetailsService.deleteUser(id);
@@ -55,13 +49,10 @@ public class UserController {
 
     @PatchMapping("/account")
     public ResponseEntity<UserDetailsDto> updateUserDetails(
-        @AuthenticationPrincipal Jwt jwt,
-        @RequestBody UserDetailsDto userDetailsDto) {
+            @AuthenticationPrincipal Jwt jwt, @RequestBody UserDetailsDto userDetailsDto) {
         long id = userDetailsDto.userId();
         long userId = jwt.getClaim("userId");
-        var roleString = jwt.getClaimAsString("role");
-        Role userRole = Role.valueOf(roleString);
-        if (id != userId && userRole != Role.ADMIN) {
+        if (id != userId) {
             throw new ApiException("Unauthorized request!", 403);
         }
         var result = userDetailsService.updateUserDetails(userDetailsDto, id);

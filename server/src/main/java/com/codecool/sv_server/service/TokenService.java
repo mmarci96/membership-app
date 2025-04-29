@@ -12,6 +12,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.Instant;
 import java.time.temporal.ChronoUnit;
+import java.util.List;
 
 @Service
 public class TokenService {
@@ -25,12 +26,14 @@ public class TokenService {
 
     public String generateToken(String email, Role role, Long userId) {
         Instant now = Instant.now();
+        List<String> authorities = List.of(role.name());
         JwtClaimsSet claims =
                 JwtClaimsSet.builder()
                         .issuer("http://localhost:5173")
                         .issuedAt(now)
                         .expiresAt(now.plus(1, ChronoUnit.DAYS))
                         .subject(email)
+                        .claim("authorities", authorities)
                         .claim("role", role.name())
                         .claim("userId", userId)
                         .build();
