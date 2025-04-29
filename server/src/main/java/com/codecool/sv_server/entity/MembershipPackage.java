@@ -1,6 +1,7 @@
 package com.codecool.sv_server.entity;
 
 import jakarta.persistence.*;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;

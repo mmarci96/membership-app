@@ -1,5 +1,12 @@
 package com.codecool.sv_server.controller;
 
+import com.codecool.sv_server.dto.BlogPostDto;
+import com.codecool.sv_server.dto.BlogPostUpdateDto;
+import com.codecool.sv_server.dto.CreateBlogPostDto;
+import com.codecool.sv_server.entity.Role;
+import com.codecool.sv_server.exception.ApiException;
+import com.codecool.sv_server.service.BlogPostService;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
@@ -12,13 +19,6 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestHeader;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
-
-import com.codecool.sv_server.dto.BlogPostDto;
-import com.codecool.sv_server.dto.BlogPostUpdateDto;
-import com.codecool.sv_server.dto.CreateBlogPostDto;
-import com.codecool.sv_server.entity.Role;
-import com.codecool.sv_server.exception.ApiException;
-import com.codecool.sv_server.service.BlogPostService;
 
 @RestController
 @RequestMapping("/api/admin")
@@ -42,11 +42,9 @@ public class AdminController {
             throw new ApiException("Unauthorized request!", 403);
         }
         var blogPost = blogPostService.createBlogPost(blogPostDto);
-        var responseData = new BlogPostDto(
-                blogPost.id(),
-                blogPost.title(),
-                blogPost.content(),
-                blogPost.createdAt());
+        var responseData =
+                new BlogPostDto(
+                        blogPost.id(), blogPost.title(), blogPost.content(), blogPost.createdAt());
 
         return ResponseEntity.ok(responseData);
     }
@@ -78,5 +76,4 @@ public class AdminController {
         blogPostService.deleteBlogPost(id);
         return ResponseEntity.ok("Blog post deleted succesfully!");
     }
-
 }

@@ -1,10 +1,12 @@
 package com.codecool.sv_server.entity;
 
 import jakarta.persistence.*;
-import java.time.LocalDateTime;
+
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+
+import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "users")
@@ -53,5 +55,4 @@ public class User {
     protected void onUpdate() {
         updatedAt = LocalDateTime.now();
     }
-
 }

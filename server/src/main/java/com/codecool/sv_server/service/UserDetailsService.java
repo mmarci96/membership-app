@@ -7,10 +7,10 @@ import com.codecool.sv_server.exception.ResourceNotFoundException;
 import com.codecool.sv_server.repository.UserDetailsRepository;
 import com.codecool.sv_server.repository.UserRepository;
 
-import java.util.Optional;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+
+import java.util.Optional;
 
 @Service
 public class UserDetailsService {
@@ -19,8 +19,7 @@ public class UserDetailsService {
 
     @Autowired
     public UserDetailsService(
-            UserDetailsRepository userDetailsRepository,
-            UserRepository userRepository) {
+            UserDetailsRepository userDetailsRepository, UserRepository userRepository) {
         this.userDetailsRepository = userDetailsRepository;
         this.userRepository = userRepository;
     }

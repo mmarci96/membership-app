@@ -15,5 +15,4 @@ public class ServerApplication {
         DotenvLoader.loadEnv();
         SpringApplication.run(ServerApplication.class, args);
     }
-
 }

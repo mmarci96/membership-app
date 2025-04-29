@@ -27,7 +27,8 @@ public class SignupRequestValidator {
             throw new IllegalArgumentException("Password must contain at least one digit");
         }
         if (!password.matches(".*[A-Z].*")) {
-            throw new IllegalArgumentException("Password must contain at least one uppercase letter");
+            throw new IllegalArgumentException(
+                    "Password must contain at least one uppercase letter");
         }
     }
 }

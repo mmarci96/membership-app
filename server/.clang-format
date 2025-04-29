@@ -1,0 +1,8 @@
+Language: Java
+BasedOnStyle: Google
+IndentWidth: 4
+ColumnLimit: 100
+AlignAfterOpenBracket: Align
+AllowShortFunctionsOnASingleLine: Empty
+BreakBeforeBraces: Attach
+SortIncludes: false
