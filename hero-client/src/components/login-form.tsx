@@ -6,13 +6,15 @@ type FormValues = {
     password: string;
 };
 
-type FormErrors = Partial<Record<keyof FormValues | "terms", string>>;
+type FormErrors = Partial<
+    Record<keyof FormValues | "remember_me" | "submit", string>
+>;
 
 export const LoginForm = () => {
     const [submitted, setSubmitted] = React.useState<FormValues | null>(null);
     const [errors, setErrors] = React.useState<FormErrors>({});
 
-    const onSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+    const onSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
         e.preventDefault();
         const formData = new FormData(e.currentTarget);
         const data = Object.fromEntries(formData.entries()) as FormValues;
@@ -23,6 +25,21 @@ export const LoginForm = () => {
             setErrors(newErrors);
             return;
         }
+        const res = await fetch("/api/auth/login", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify(data),
+        });
+        if (!res.ok) {
+            setErrors({ submit: "Error loggin in." });
+        }
+        const loginRes: { token: string; userId: number } = await res.json();
+        console.log("Login res: ", loginRes);
+        localStorage.setItem("token", loginRes.token);
+        localStorage.setItem("userId", loginRes.userId.toString());
+
         setErrors({});
 
         setSubmitted(data);
@@ -73,7 +90,7 @@ export const LoginForm = () => {
                     classNames={{
                         label: "text-small",
                     }}
-                    isInvalid={!!errors.terms}
+                    isInvalid={!!errors.remember_me}
                     name="terms"
                     validationBehavior="aria"
                     value="true"
@@ -84,9 +101,9 @@ export const LoginForm = () => {
                     Stay logged in
                 </Checkbox>
 
-                {errors.terms && (
+                {errors.remember_me && (
                     <span className="text-danger text-small">
-                        {errors.terms}
+                        {errors.remember_me}
                     </span>
                 )}
 
