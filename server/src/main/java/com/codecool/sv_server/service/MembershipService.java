@@ -3,6 +3,7 @@ package com.codecool.sv_server.service;
 import com.codecool.sv_server.dto.MembershipStatusDto;
 import com.codecool.sv_server.dto.SubscriptionReqDto;
 import com.codecool.sv_server.entity.Membership;
+import com.codecool.sv_server.entity.Role;
 import com.codecool.sv_server.entity.SubscriptionStatus;
 import com.codecool.sv_server.entity.User;
 import com.codecool.sv_server.exception.ApiException;
@@ -40,6 +41,8 @@ public class MembershipService {
             throw new ApiException("Already started membership", 400);
         }
         var user = userRepository.findById(userId).orElse(null);
+        user.setRole(Role.ROLE_MEMBER);
+        userRepository.save(user);
         Membership membership = new Membership();
         membership.setUser(user);
         membership.setSubscriptionStatus(SubscriptionStatus.ACTIVE);
