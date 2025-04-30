@@ -30,12 +30,7 @@ public class MembershipController {
 
     @GetMapping("/packages/{id}")
     public ResponseEntity<MembershipPackageDTO> getMembershipPackageContent(
-            @PathVariable Long id, @AuthenticationPrincipal String userEmail) {
-
-        Membership activeMembership = membershipService.findActiveMembershipByEmail(userEmail);
-        if (activeMembership == null) {
-            return ResponseEntity.status(403).body(null);
-        }
+            @PathVariable Long id) {
 
         MembershipPackageDTO membershipPackageDTO = membershipPackageService.getPackageById(id);
         return ResponseEntity.ok(membershipPackageDTO);

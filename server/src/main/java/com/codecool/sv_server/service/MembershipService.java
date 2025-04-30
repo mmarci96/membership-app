@@ -41,6 +41,10 @@ public class MembershipService {
             throw new ApiException("Already started membership", 400);
         }
         var user = userRepository.findById(userId).orElse(null);
+        if(user == null){
+            throw new ResourceNotFoundException("user");
+        }
+        
         user.setRole(Role.ROLE_MEMBER);
         userRepository.save(user);
         Membership membership = new Membership();
