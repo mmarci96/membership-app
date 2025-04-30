@@ -56,7 +56,7 @@ public class UserDetailsServiceTest {
     void test_create_userDetail_with_no_user() {
         var badId = 99L;
         UserDetailsDto userDetailsDto = createTestUserDetailsDto(badId);
-when(userRepository.findById(badId)).thenReturn(Optional.empty());
+        when(userRepository.findById(badId)).thenReturn(Optional.empty());
         var ex =
                 assertThrows(
                         ApiException.class,
