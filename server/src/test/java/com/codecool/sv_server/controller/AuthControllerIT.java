@@ -56,7 +56,7 @@ public class AuthControllerIT extends BaseIntegrationTest {
         String token = loginRes.get("token").asText();
         long userId = loginRes.get("userId").asLong();
 
-        var user = userRepository.findById(userId);
+        var user = userRepository.findById(userId).orElse(null);
         var verifyCode = new VerifyCodeRequestDto(user.getActivationToken());
         String codeJson = objectMapper.writeValueAsString(verifyCode);
 
@@ -155,7 +155,7 @@ public class AuthControllerIT extends BaseIntegrationTest {
         String token = loginRes.get("token").asText();
         long userId = loginRes.get("userId").asLong();
 
-        var user = userRepository.findById(userId);
+        var user = userRepository.findById(userId).orElse(null);
         user.setActivationExpirationTime(LocalDateTime.now().minusMinutes(1));
         userRepository.save(user);
 

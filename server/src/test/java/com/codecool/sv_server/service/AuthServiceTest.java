@@ -36,6 +36,7 @@ public class AuthServiceTest {
         var password = "Password123";
         var user = new User();
         user.setId(1L);
+        user.setEmail(email);
         user.setPassword("hashed");
         user.setRole(Role.ROLE_USER);
 

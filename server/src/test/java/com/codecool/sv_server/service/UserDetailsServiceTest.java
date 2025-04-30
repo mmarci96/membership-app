@@ -36,9 +36,9 @@ public class UserDetailsServiceTest {
         user.setId(id);
         user.setEmail("valid@email.com");
 
-        UserDetailsDto detailsDto = createTestUserDetailsDto(id);
+        UserDetailsDto detailsDto = createTestUserDetailsDto(user.getId());
 
-        when(userRepository.findById(id)).thenReturn(user);
+        when(userRepository.findById(id)).thenReturn(Optional.of(user));
         when(userDetailsRepository.save(any(UserDetails.class)))
                 .thenAnswer(
                         inv -> {
@@ -56,7 +56,7 @@ public class UserDetailsServiceTest {
     void test_create_userDetail_with_no_user() {
         var badId = 99L;
         UserDetailsDto userDetailsDto = createTestUserDetailsDto(badId);
-        when(userRepository.findById(badId)).thenReturn(null);
+        when(userRepository.findById(badId)).thenReturn(Optional.empty());
         var ex =
                 assertThrows(
                         ApiException.class,
@@ -74,9 +74,9 @@ public class UserDetailsServiceTest {
         User user = new User();
         user.setId(id);
         user.setEmail("valid_test@email.com");
-        UserDetailsDto detailsDto = createTestUserDetailsDto(id);
+        UserDetailsDto detailsDto = createTestUserDetailsDto(user.getId());
 
-        when(userRepository.findById(id)).thenReturn(user);
+        when(userRepository.findById(id)).thenReturn(Optional.of(user));
         when(userDetailsRepository.save(any(UserDetails.class)))
                 .thenAnswer(
                         inv -> {
@@ -98,7 +98,7 @@ public class UserDetailsServiceTest {
 
         when(userDetailsRepository.findById(id)).thenReturn(Optional.of(userDetails));
 
-        var result = userDetailsService.updateUserDetails(updateData, id);
+        var result = userDetailsService.updateUserDetails(updateData, user.getId());
 
         assertNotNull(result);
         assertEquals("mmmm", result.firstName());
