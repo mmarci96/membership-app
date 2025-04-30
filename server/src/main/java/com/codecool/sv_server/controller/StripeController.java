@@ -24,22 +24,22 @@ public class StripeController {
         this.membershipService = membershipService;
     }
 
-   
-@PostMapping("/create-payment-intent")
-public ResponseEntity<PaymentIntentDto> createPaymentIntent(
-        @RequestBody PaymentIntentDto paymentIntentDto) {
-    try {
-        var params = PaymentIntentCreateParams.builder().setAmount(50L).setCurrency("usd").build();
-        PaymentIntent paymentIntent = PaymentIntent.create(params);
-        return ResponseEntity.ok(
-                new PaymentIntentDto(
-                        paymentIntent.getId(),
-                        paymentIntent.getClientSecret(),
-                        paymentIntentDto.userId()));
-    } catch (StripeException | RuntimeException e) {
-        throw new ApiException("Stripe error: " + e.getMessage(), 500);
+    @PostMapping("/create-payment-intent")
+    public ResponseEntity<PaymentIntentDto> createPaymentIntent(
+            @RequestBody PaymentIntentDto paymentIntentDto) {
+        try {
+            var params =
+                    PaymentIntentCreateParams.builder().setAmount(50L).setCurrency("usd").build();
+            PaymentIntent paymentIntent = PaymentIntent.create(params);
+            return ResponseEntity.ok(
+                    new PaymentIntentDto(
+                            paymentIntent.getId(),
+                            paymentIntent.getClientSecret(),
+                            paymentIntentDto.userId()));
+        } catch (StripeException | RuntimeException e) {
+            throw new ApiException("Stripe error: " + e.getMessage(), 500);
+        }
     }
-}
 
     @PostMapping("/payment-status")
     public ResponseEntity<MembershipStatusDto> createMembershipStatus(

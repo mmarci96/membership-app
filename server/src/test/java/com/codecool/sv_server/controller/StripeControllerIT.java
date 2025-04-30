@@ -1,8 +1,11 @@
 package com.codecool.sv_server.controller;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.mockStatic;
+import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import com.codecool.sv_server.dto.PaymentIntentDto;
@@ -132,6 +135,30 @@ public class StripeControllerIT extends BaseIntegrationTest {
                                     .header("Authorization", "Bearer " + token)
                                     .content(json))
                     .andExpect(status().is5xxServerError());
+        }
+    }
+
+    @Test
+    public void test_create_payment_intent_valid_stripe() throws Exception {
+        try (MockedStatic<PaymentIntent> mocked = mockStatic(PaymentIntent.class)) {
+            PaymentIntent mockedPaymentIntent = mock(PaymentIntent.class);
+            when(mockedPaymentIntent.getId()).thenReturn("pi_123456789");
+            when(mockedPaymentIntent.getAmount())
+                    .thenReturn(5000L); 
+            when(mockedPaymentIntent.getCurrency()).thenReturn("usd");
+
+            mocked.when(() -> PaymentIntent.create(any(PaymentIntentCreateParams.class)))
+                    .thenReturn(mockedPaymentIntent);
+
+            var dto = new PaymentIntentDto("pi_123456789", "pi_123456789", 1L);
+            var json = objectMapper.writeValueAsString(dto);
+
+            mockMvc.perform(
+                            post("/api/stripe/create-payment-intent")
+                                    .contentType(MediaType.APPLICATION_JSON)
+                                    .header("Authorization", "Bearer " + token)
+                                    .content(json))
+                    .andExpect(status().isOk());
         }
     }
 }
