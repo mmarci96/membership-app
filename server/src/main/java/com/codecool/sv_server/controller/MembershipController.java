@@ -3,13 +3,11 @@ package com.codecool.sv_server.controller;
 import com.codecool.sv_server.dto.MembershipPackageDTO;
 import com.codecool.sv_server.dto.MembershipPackageNameDto;
 import com.codecool.sv_server.dto.MembershipStatusDto;
-import com.codecool.sv_server.entity.Membership;
 import com.codecool.sv_server.service.MembershipPackageService;
 import com.codecool.sv_server.service.MembershipService;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.annotation.AuthenticationPrincipal;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -29,8 +27,7 @@ public class MembershipController {
     }
 
     @GetMapping("/packages/{id}")
-    public ResponseEntity<MembershipPackageDTO> getMembershipPackageContent(
-            @PathVariable Long id) {
+    public ResponseEntity<MembershipPackageDTO> getMembershipPackageContent(@PathVariable Long id) {
 
         MembershipPackageDTO membershipPackageDTO = membershipPackageService.getPackageById(id);
         return ResponseEntity.ok(membershipPackageDTO);
