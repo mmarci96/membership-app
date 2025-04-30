@@ -41,12 +41,12 @@ public class UserDetailsService {
     }
 
     public UserDetailsDto createUserDetails(UserDetailsDto userDetailsDto) {
-        var u = userRepository.findById(userDetailsDto.userId());
-        if (u == null) {
+        var user = userRepository.findById(userDetailsDto.userId()).orElse(null);
+        if (user == null) {
             throw new ApiException("User does not exist!", 404);
         }
         var userDetails = new UserDetails();
-        userDetails.setUser(u);
+        userDetails.setUser(user);
         userDetails.setFirstName(userDetailsDto.firstName());
         userDetails.setLastName(userDetailsDto.lastName());
         userDetails.setPhoneNumber(userDetailsDto.phoneNumber());
