@@ -10,6 +10,8 @@ import com.codecool.sv_server.exception.ResourceNotFoundException;
 import com.codecool.sv_server.repository.MembershipRepository;
 import com.codecool.sv_server.repository.UserRepository;
 
+import jakarta.transaction.Transactional;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
@@ -27,6 +29,7 @@ public class MembershipService {
         this.userRepository = userRepository;
     }
 
+    @Transactional
     public MembershipStatusDto startMembership(SubscriptionReqDto subRequestDto) {
         if (!subRequestDto.paymentStatus()) {
             throw new ApiException("Payment unsuccessful", 400);
