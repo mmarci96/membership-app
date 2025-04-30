@@ -21,8 +21,7 @@ export const PaymentStatus = () => {
         console.log(redirectStatus);
 
         if (redirectStatus === "succeeded" && user.userId) {
-            // Call API to update membership
-            fetch("/api/memberships", {
+            fetch("/api/stripe/payment-status", {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
