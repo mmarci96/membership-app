@@ -36,9 +36,13 @@ export const PaymentStatus = () => {
                 .then((response) => response.json())
                 .then((data) => {
                     console.log("Membership updated:", data);
-                    setMembership(data);
-                    // Optionally redirect to another page after success
-                    // navigate('/membership');
+                    if(data.error !== null){
+                        // setMembership(data)
+                        console.log("Error: ", data.error);
+                        
+                    } else {
+                        setMembership(data);
+                    }
                 })
                 .catch((error) => {
                     console.error("Error updating membership:", error);
