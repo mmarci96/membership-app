@@ -36,7 +36,7 @@ public class MembershipService {
         if (existing != null) {
             throw new ApiException("Already started membership", 400);
         }
-        User user = userRepository.findById(userId);
+        var user = userRepository.findById(userId).orElse(null);
         Membership membership = new Membership();
         membership.setUser(user);
         membership.setSubscriptionStatus(SubscriptionStatus.ACTIVE);
@@ -49,8 +49,11 @@ public class MembershipService {
     }
 
     public MembershipStatusDto getMemberShipStatus(long userId) {
-        User user = userRepository.findById(userId);
-        Membership membership = user.getMembership();
+        User user = userRepository.findById(userId).orElse(null);
+        if (user == null) {
+            throw new ResourceNotFoundException("user");
+        }
+        Membership membership = membershipRepository.findByUserId(user.getId());
         if (membership == null) {
             throw new ResourceNotFoundException("membership");
         }

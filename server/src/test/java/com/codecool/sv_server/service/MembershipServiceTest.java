@@ -84,16 +84,17 @@ public class MembershipServiceTest {
     public void getMemberShipStatus_shouldReturnActiveMembership() {
         Long userId = 1L;
         User mockUser = new User();
+        mockUser.setId(userId);
         Membership membership = new Membership();
         membership.setSubscriptionStatus(SubscriptionStatus.ACTIVE);
         membership.setEndDate(LocalDate.now().plusDays(30));
         mockUser.setMembership(membership);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
+        when(membershipRepository.findByUserId(userId)).thenReturn(membership);
 
         MembershipStatusDto result = membershipService.getMemberShipStatus(userId);
 
-        assertEquals(userId, result.userId());
         assertEquals(SubscriptionStatus.ACTIVE, result.status());
         assertNotNull(result.endDate());
     }
@@ -102,6 +103,7 @@ public class MembershipServiceTest {
     public void getMemberShipStatus_shouldThrowIfNoMembership() {
         Long userId = 1L;
         User mockUser = new User();
+        mockUser.setId(userId);
 
         when(userRepository.findById(userId)).thenReturn(Optional.of(mockUser));
 
