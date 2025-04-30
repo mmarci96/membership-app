@@ -52,7 +52,7 @@ public class SecurityConfiguration {
                                         .requestMatchers("/api/admin/*")
                                         .hasAnyRole("ADMIN", "CONTENT_CREATOR")
                                         .requestMatchers("/api/membership/*")
-                                        .hasRole("MEMBER")
+                                        .hasAnyRole("ADMIN", "CONTENT_CREATOR", "MEMBER")
                                         .requestMatchers("/ping")
                                         .permitAll()
                                         .anyRequest()

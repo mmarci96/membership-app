@@ -36,6 +36,7 @@ public class StripeController {
                             paymentIntent.getId(),
                             paymentIntent.getClientSecret(),
                             paymentIntentDto.userId()));
+
         } catch (StripeException | RuntimeException e) {
             throw new ApiException("Stripe error: " + e.getMessage(), 500);
         }
