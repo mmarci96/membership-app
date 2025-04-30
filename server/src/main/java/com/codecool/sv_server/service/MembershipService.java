@@ -28,7 +28,7 @@ public class MembershipService {
     }
 
     public MembershipStatusDto startMembership(SubscriptionReqDto subRequestDto) {
-        if(!subRequestDto.paymentStatus()){
+        if (!subRequestDto.paymentStatus()) {
             throw new ApiException("Payment unsuccessful", 400);
         }
         var userId = subRequestDto.userId();
