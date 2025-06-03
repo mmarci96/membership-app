@@ -13,6 +13,7 @@ public class HealthController {
 
     @GetMapping("/hello")
     ResponseEntity<String> hello() {
+        System.out.println("Saying hello to world!");
         return ResponseEntity.ok("Hello, World!");
     }
 
