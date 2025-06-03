@@ -13,6 +13,7 @@ public class HealthController {
 
     @GetMapping("/hello")
     ResponseEntity<String> hello() {
+        // Just a comment here to show up change in git...
         return ResponseEntity.ok("Hello, World!");
     }
 
